@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 import os
+import csv
 
 button_vars = []
 entry_boxes = []
@@ -38,6 +40,54 @@ button_texts = [
     "Versus" #26
 ]
 
+def clear_selections():
+    for i, var in enumerate(button_vars):
+        entry_boxes[i].delete(0, tk.END)
+        entry_boxes[i].insert(0, '0')
+        var.set(0)
+
+def set_button_and_entry(index, weight, checked):
+    button_vars[index].set(checked)
+    entry_boxes[index].delete(0, tk.END)
+    entry_boxes[index].insert(0, str(weight))
+    if checked == 0:
+        check_buttons[index].config(fg='grey')
+    else:
+        check_buttons[index].config(fg='black')
+
+def save_csv():
+    file_path = filedialog.asksaveasfilename(defaultextension='.csv', filetypes=[('CSV Files', '*.csv')])
+
+    if file_path:
+        with open(file_path, 'w', newline='') as file:
+            fieldnames = ['name', 'weight', 'on/off']
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for i, button_text in enumerate(button_texts):
+                name = button_text
+                weight = int(entry_boxes[i].get())
+                checked = button_vars[i].get()
+
+                writer.writerow({'name': name, 'weight': weight, 'on/off': checked})
+
+def load_csv():
+    file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
+    if file_path:
+        clear_selections()
+        with open(file_path, 'r') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                name = row['name']
+                weight = int(row['weight'])
+                checked = int(row['on/off'])
+                for i, button_text in enumerate(button_texts):
+                    if button_text == name:
+                        set_button_and_entry(i, weight, checked)
+                        on_checkbutton_change(i)  # Update checkbox color
+                        break
+
+
 def on_button_click(button_number):
     print(button_texts[button_number - 1] + " checked!")
 
@@ -50,7 +100,7 @@ def on_generate_code():
         if check_buttons[i].cget('fg') == 'grey':
             continue
         total_weights += current_weight
-        if var.get() == 1 and check_buttons[i].cget('fg') != 'grey':
+        if var.get() == 1:
             if current_weight == 0:
                 print(f"{button_texts[i]} has no weight!")
             else:
@@ -68,7 +118,7 @@ def on_generate_code():
         item_name = button_texts[i]  # Get the name of the checked item
         item_percentage = (current_weight / total_weights) * 100
         if item_percentage != 0:
-            print(f'{item_name}, Percentage: {item_percentage:.2f}%')
+            print(f'{item_name}: {item_percentage:.2f}%')
 
     checked_buttons = [i+1 for i, var in enumerate(button_vars) if var.get() == 1]
 
@@ -82,7 +132,6 @@ def on_checkbutton_change(index):
         check_buttons[index].config(fg='grey') # Set the color to a lighter one when not checked
     else:
         check_buttons[index].config(fg='black') # Set the color to a darker one when checked
-
 
 def open_help_window():
     help_window = tk.Toplevel()
@@ -110,6 +159,12 @@ def create_gui():
     root = tk.Tk()
     root.title("Mario Party 5 Capsule Pool Gen")
     root.iconbitmap("Miracle_Capsule.ico")
+
+    save_button = tk.Button(root, text="Save CSV", command=save_csv)
+    save_button.pack()
+
+    load_button = tk.Button(root, text="Load CSV", command=load_csv)
+    load_button.pack()
 
     notebook = ttk.Notebook(root)
     notebook.pack(fill="both", expand=True)
