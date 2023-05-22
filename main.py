@@ -187,7 +187,16 @@ def on_generate_code(tab_parent, version_var):
     if no_weight == 1:
         print("All selected items must have weights!")
         return
-    print(f"Generating code for {selected_tab_text} :{version_var}")
+
+    selected_value = version_var.get()
+
+    if selected_value == 1:
+        print(f"Generating code for {selected_tab_text} JP")
+    elif selected_value == 2:
+        print(f"Generating code for {selected_tab_text} US")
+    elif selected_value == 3:
+        print(f"Generating code for {selected_tab_text} PAL")
+
     for i, var in enumerate(button_vars_dict):
         if check_buttons_dict[i].cget('fg') == 'grey':
             continue
@@ -335,7 +344,7 @@ def create_gui():
 
     root = tk.Tk()
     root.title("Mario Party 4/5 Item Pool Generator")
-    root.iconbitmap("Miracle_Capsule.ico")
+    root.iconbitmap("ico/Miracle_Capsule.ico")
 
     # Set default size of window to be large enough for mp4/mp5 item grids
     root.geometry("600x550")  # Width x Height in pixels
