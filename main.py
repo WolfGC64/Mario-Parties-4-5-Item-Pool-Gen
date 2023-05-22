@@ -73,7 +73,7 @@ def load_csv(tab_parent):
                     on_checkbutton_change(i, selected_tab_text)  # Update checkbox color
 
 
-def generate_gecko_code(tab_parent):
+def generate_gecko_code(tab_parent, version_var):
     selected_tab = tab_parent.select()  # Get currently selected tab ID
     selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
     
@@ -82,14 +82,44 @@ def generate_gecko_code(tab_parent):
         button_text_keys = list(button_texts_mp5.keys())
         entry_boxes_dict = entry_boxes["MP5"]
         button_texts_dict = button_texts_mp5
-        gecko_code_header = gecko_code_header_mp5_pal
-        gecko_code_footer = gecko_code_footer_mp5_pal
+        if version_var.get() == 3: # PAL
+            gecko_code_header = gecko_code_header_mp5_pal
+            gecko_code_footer = gecko_code_footer_mp5_pal
+        elif version_var.get() == 2: # US
+            gecko_code_header = gecko_code_header_mp5_us
+            gecko_code_footer = gecko_code_footer_mp5_us
+        elif version_var.get() == 1: # JP
+            gecko_code_header = gecko_code_header_mp5_jp
+            gecko_code_footer = gecko_code_footer_mp5_jp           
+        else:
+            button_text_keys = []  # Define an empty list if version is not valid
+            entry_boxes_dict = {}
+            button_texts_dict = {}
+            gecko_code_header = ""
+            gecko_code_footer = ""
+            print("Invalid version!")
+            return
     elif selected_tab_text == "MP4":
         button_text_keys = list(button_texts_mp4.keys())
         entry_boxes_dict = entry_boxes["MP4"]
         button_texts_dict = button_texts_mp4
-        gecko_code_header = gecko_code_header_mp4_us
-        gecko_code_footer = gecko_code_footer_mp4_us
+        if version_var.get() == 3: # PAL
+            gecko_code_header = gecko_code_header_mp4_pal
+            gecko_code_footer = gecko_code_footer_mp4_pal
+        elif version_var.get() == 2: # US
+            gecko_code_header = gecko_code_header_mp4_us
+            gecko_code_footer = gecko_code_footer_mp4_us
+        elif version_var.get() == 1: # JP
+            gecko_code_header = gecko_code_header_mp4_jp
+            gecko_code_footer = gecko_code_footer_mp4_jp    
+        else:
+            button_text_keys = []  # Define an empty list if version is not valid
+            entry_boxes_dict = {}
+            button_texts_dict = {}
+            gecko_code_header = ""
+            gecko_code_footer = ""
+            print("Invalid version!")
+            return
     else:
         return
 
@@ -117,7 +147,7 @@ def generate_gecko_code(tab_parent):
     
     print("\n" + gecko_code_header + code_str + "00000000" + gecko_code_footer)
 
-def on_generate_code(tab_parent):
+def on_generate_code(tab_parent, version_var):
     no_weight = 0
     checked_weights = 0
     total_weights = 0
@@ -157,6 +187,7 @@ def on_generate_code(tab_parent):
     if no_weight == 1:
         print("All selected items must have weights!")
         return
+    print(f"Generating code for {selected_tab_text} :{version_var}")
     for i, var in enumerate(button_vars_dict):
         if check_buttons_dict[i].cget('fg') == 'grey':
             continue
@@ -166,13 +197,13 @@ def on_generate_code(tab_parent):
         item_name = button_text_keys[i]  # Get the name of the checked item
         item_percentage = (current_weight / total_weights) * 100
         if item_percentage != 0:
-            print(f'{item_name}: {item_percentage:.2f}%')
+            print(f'  {item_name}: {item_percentage:.2f}%')
 
     checked_buttons = [i + 1 for i, var in enumerate(button_vars_dict) if var.get() == 1]
 
     if not checked_buttons:
         return
-    generate_gecko_code(tab_parent)
+    generate_gecko_code(tab_parent, version_var)
 
 
 def on_checkbutton_change(index, tab_name):
@@ -248,10 +279,10 @@ def create_mp5_grid(parent, root, tab_name):
 # Update the function that creates the grid for a given tab
 def create_mp4_grid(parent, root, tab_name):
     num_columns = 3
-    if len(button_texts_mp5) % num_columns == 0:
-        num_rows = int(len(button_texts_mp5) / num_columns)
+    if len(button_texts_mp4) % num_columns == 0:
+        num_rows = int(len(button_texts_mp4) / num_columns)
     else:
-        num_rows = int(len(button_texts_mp5) / num_columns + 1)
+        num_rows = int(len(button_texts_mp4) / num_columns + 1)
         
     button_vars[tab_name] = []
     entry_boxes[tab_name] = []
@@ -329,7 +360,7 @@ def create_gui():
     clear_button.pack(side=tk.LEFT)
 
     # Create version radiobuttons
-    version_var = tk.IntVar()
+    version_var = tk.IntVar(value=1)  # Set default value to 1 (JP)
     version_frame = tk.Frame(main_frame)
     version_frame.pack()
     version1_button = tk.Radiobutton(version_frame, text="JP", variable=version_var, value=1)
@@ -352,12 +383,8 @@ def create_gui():
     gen_code_button.pack(side=tk.TOP, fill=tk.X)
 
     # Create 'Generate Gecko Code' button and add to gen_code_button
-    generate_button = tk.Button(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent))
+    generate_button = tk.Button(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent, version_var))
     generate_button.pack(side=tk.LEFT)
-
-    # # Create 'Help' button and add to gen_code_button
-    # help_button = tk.Button(gen_code_button, text="Help", command=open_help_window)
-    # help_button.pack(side=tk.LEFT)
 
     # Store tabs in a dictionary
     tab_parent.tabs = {"MP4": mp4_tab, "MP5": mp5_tab}
@@ -365,11 +392,7 @@ def create_gui():
     create_mp4_grid(mp4_tab, root, "MP4")
     create_mp5_grid(mp5_tab, root, "MP5")
     tab_parent.bind("<<NotebookTabChanged>>", lambda event: on_tab_changed(event, root))
-
-
     root.mainloop()
-
-
 
 
 def validate_input(value):
