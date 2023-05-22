@@ -2,6 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk
 from tkinter import filedialog
+from PIL import Image
 import os
 import csv
 import sys
@@ -239,11 +240,12 @@ def open_help_window():
     frame.pack()
     frame.place(anchor='center', relx=0.5, rely=0.5)
 
-    datafile = "icon.ico"
+    datafile = "ico/icon.ico"
+    datafileFrozen = "icon.ico"
     if not hasattr(sys, "frozen"):
         datafile = os.path.join(os.path.dirname(__file__), datafile) 
     else:  
-        datafile = os.path.join(sys.prefix, "ico/" + datafile)
+        datafile = os.path.join(sys.prefix, datafileFrozen)
 
     img = ctk.CTkImage(Image.open(datafile), size=(64, 64))
     img = ctk.CTkLabel(frame, image=img, text="", height=64, width=64)
@@ -383,27 +385,27 @@ def create_gui():
     root.resizable(False, False)
 
     # Set default size of window to be large enough for mp4/mp5 item grids
-    root.geometry("800x505")
+    root.geometry("800x515")
+
+    menubar = tk.Menu(root)
+    filemenu = tk.Menu(menubar, tearoff=0)
+    filemenu.add_command(label="New", command=lambda: clear_options(tab_parent))
+    filemenu.add_command(label="Open", command=lambda: load_csv(tab_parent))
+    filemenu.add_command(label="Save", command=lambda: save_csv(tab_parent))
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=root.quit)
+    menubar.add_cascade(label="File", menu=filemenu)
+
+    helpmenu = tk.Menu(menubar, tearoff=0)
+    helpmenu.add_command(label="About...", command=open_help_window)
+    menubar.add_cascade(label="Help", menu=helpmenu)
+
+    root.config(menu=menubar)
+
 
     main_frame = ctk.CTkFrame(root)  # CTkFrame to hold version_frame and tab_parent
     main_frame.grid()
-
-    # Create a button frame to hold the buttons
-    button_frame = ctk.CTkFrame(main_frame)
-    button_frame.grid(row=0)
-
-    # Create 'Save CSV' button and add to button_frame
-    save_button = ctk.CTkButton(button_frame, text="Save CSV", command=lambda: save_csv(tab_parent))
-    save_button.grid(row=0, column=0)
-
-    # Create 'Load CSV' button and add to button_frame
-    load_button = ctk.CTkButton(button_frame, text="Load CSV", command=lambda: load_csv(tab_parent))
-    load_button.grid(row=0, column=1)
-
-    # Create 'Clear All' button and add to button_frame
-    clear_button = ctk.CTkButton(button_frame, text="Clear All", command=lambda: clear_options(tab_parent))
-    clear_button.grid(row=0, column=2)
-
+    
     # Create Code Output Box
     global codeOut
     codeOut = ctk.CTkTextbox(root, width=258, height=478)
