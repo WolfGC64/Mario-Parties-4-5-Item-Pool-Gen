@@ -217,6 +217,7 @@ C2083B9C 00000002
 """
 
 button_texts_mp5 = {
+    "Mushroom": "0",          # 00000000
     "Super Mushroom": "1",    # 00000001
     "Cursed Mushroom": "2",   # 00000002
     "Warp Pipe": "3",         # 00000003
@@ -245,15 +246,14 @@ button_texts_mp5 = {
     "Chance": "23",           # 00000023
     "Miracle": "24",          # 00000024
     "Donkey Kong": "25",      # 00000025
-    "Versus": "26"            # 00000026
 }
 
 button_texts_mp4 = {
     "Mini Mushroom": "0",       # 00000000
     "Mushroom": "1",            # 00000001
-    "Super Mini Mushroom": "2", # 00000002
-    "Super Mega Mushroom": "3", # 00000003
-    "Mini Mega Hammer": "4",    # 00000004
+    "Super Mini": "2", # 00000002
+    "Super Mega": "3", # 00000003
+    "Mini-Mega Hammer": "4",    # 00000004
     "Warp Pipe": "5",           # 00000005
     "Swap Card": "6",           # 00000006
     "Sparky Sticker": "7",      # 00000007
