@@ -306,28 +306,58 @@ def create_gui():
     root.title("Mario Party 4/5 Item Pool Generator")
     root.iconbitmap("Miracle_Capsule.ico")
 
-    #set default size of window to be large enough for mp4/mp5 item grids
-    root.geometry("600x520")  # Width x Height in pixels
-    tab_parent = ttk.Notebook(root)
+    # Set default size of window to be large enough for mp4/mp5 item grids
+    root.geometry("600x550")  # Width x Height in pixels
 
-    #Create Save CSV button
-    save_button = tk.Button(root, text="Save CSV", command=lambda: save_csv(tab_parent))
-    save_button.pack()
+    main_frame = tk.Frame(root)  # Frame to hold version_frame and tab_parent
+    main_frame.pack()
 
-    #Create Load CSV button
-    load_button = tk.Button(root, text="Load CSV", command=lambda: load_csv(tab_parent))
-    load_button.pack()
+    # Create a button frame to hold the buttons
+    button_frame = tk.Frame(main_frame)
+    button_frame.pack(side=tk.TOP, fill=tk.X)
 
-    #Create Clear All button
-    clear_button = tk.Button(root, text="Clear All", command=lambda: clear_options(tab_parent))
-    clear_button.pack()
+    # Create 'Save CSV' button and add to button_frame
+    save_button = tk.Button(button_frame, text="Save CSV", command=lambda: save_csv(tab_parent))
+    save_button.pack(side=tk.LEFT)
 
+    # Create 'Load CSV' button and add to button_frame
+    load_button = tk.Button(button_frame, text="Load CSV", command=lambda: load_csv(tab_parent))
+    load_button.pack(side=tk.LEFT)
+
+    # Create 'Clear All' button and add to button_frame
+    clear_button = tk.Button(button_frame, text="Clear All", command=lambda: clear_options(tab_parent))
+    clear_button.pack(side=tk.LEFT)
+
+    # Create version radiobuttons
+    version_var = tk.IntVar()
+    version_frame = tk.Frame(main_frame)
+    version_frame.pack()
+    version1_button = tk.Radiobutton(version_frame, text="JP", variable=version_var, value=1)
+    version1_button.pack(side=tk.LEFT)
+    version2_button = tk.Radiobutton(version_frame, text="US", variable=version_var, value=2)
+    version2_button.pack(side=tk.LEFT)
+    version3_button = tk.Radiobutton(version_frame, text="PAL", variable=version_var, value=3)
+    version3_button.pack(side=tk.LEFT)
+
+    tab_parent = ttk.Notebook(main_frame)  # Place inside main_frame
 
     mp4_tab = ttk.Frame(tab_parent)
     mp5_tab = ttk.Frame(tab_parent)
     tab_parent.add(mp4_tab, text="MP4")
     tab_parent.add(mp5_tab, text="MP5")
     tab_parent.pack(expand=1, fill='both')
+
+    # Create a button frame to hold the buttons
+    gen_code_button = tk.Frame(main_frame)
+    gen_code_button.pack(side=tk.TOP, fill=tk.X)
+
+    # Create 'Generate Gecko Code' button and add to gen_code_button
+    generate_button = tk.Button(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent))
+    generate_button.pack(side=tk.LEFT)
+
+    # # Create 'Help' button and add to gen_code_button
+    # help_button = tk.Button(gen_code_button, text="Help", command=open_help_window)
+    # help_button.pack(side=tk.LEFT)
 
     # Store tabs in a dictionary
     tab_parent.tabs = {"MP4": mp4_tab, "MP5": mp5_tab}
@@ -336,11 +366,6 @@ def create_gui():
     create_mp5_grid(mp5_tab, root, "MP5")
     tab_parent.bind("<<NotebookTabChanged>>", lambda event: on_tab_changed(event, root))
 
-    generate_button = tk.Button(root, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent))
-    generate_button.pack()
-
-    help_button = tk.Button(root, text="Help", command=open_help_window)
-    help_button.pack()
 
     root.mainloop()
 
