@@ -214,8 +214,12 @@ def clear_options(tab_parent):
 
 # Update the function that creates the grid for a given tab
 def create_mp5_grid(parent, root, tab_name):
-    num_rows = 10
     num_columns = 3
+    if len(button_texts_mp5) % num_columns == 0:
+        num_rows = int(len(button_texts_mp5) / num_columns)
+    else:
+        num_rows = int(len(button_texts_mp5) / num_columns + 1)
+    
     button_vars[tab_name] = []
     entry_boxes[tab_name] = []
     check_buttons[tab_name] = []
@@ -243,8 +247,12 @@ def create_mp5_grid(parent, root, tab_name):
 
 # Update the function that creates the grid for a given tab
 def create_mp4_grid(parent, root, tab_name):
-    num_rows = 10
     num_columns = 3
+    if len(button_texts_mp5) % num_columns == 0:
+        num_rows = int(len(button_texts_mp5) / num_columns)
+    else:
+        num_rows = int(len(button_texts_mp5) / num_columns + 1)
+        
     button_vars[tab_name] = []
     entry_boxes[tab_name] = []
     check_buttons[tab_name] = []
