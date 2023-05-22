@@ -1,4 +1,5 @@
 #To be inserted at 80083878
+#To be inserted at 80083878
 # Array of integer percentages (assuming 12 items)
 # Replace the values in this array with the desired percentages for each item
 bl afterPercentages
@@ -55,6 +56,8 @@ percentages:
 #Magic Lamp
 .2byte 0x010C #weight
 .2byte 0x000C #item ID
+
+.4byte 0 #padding for easier python script generation
 
 
 afterPercentages:
