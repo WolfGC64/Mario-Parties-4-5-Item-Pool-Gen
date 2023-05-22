@@ -6,6 +6,7 @@ from PIL import Image
 import os
 import csv
 import sys
+import pyperclip
 import time
 from gecko_code_dictionaries import *
 
@@ -156,6 +157,8 @@ def generate_gecko_code(tab_parent, version_var):
             code_str += " "
     
     print("\n" + gecko_code_header + code_str + "00000000" + gecko_code_footer)
+    pyperclip.copy(gecko_code_header + code_str + "00000000" + gecko_code_footer)
+
 
 def on_generate_code(tab_parent, version_var):
     no_weight = 0
