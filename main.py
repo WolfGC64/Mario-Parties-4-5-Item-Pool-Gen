@@ -334,7 +334,7 @@ def create_mp4_grid(parent, root, tab_name):
 
                 checkbutton = ctk.CTkCheckBox(master=tab_parent.tab("MP4"), text=button_text_keys[index], variable=var, fg_color='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
                 check_buttons[tab_name].append(checkbutton)  # Store the check button
-
+    
                 entry.grid(row=i, column=j*2, padx=5, pady=5, sticky="e")
                 checkbutton.grid(row=i, column=j*2+1, padx=5, pady=5, sticky="w")
                 
@@ -352,6 +352,7 @@ def on_tab_changed(event, root):
     # Create new grid based on the selected tab
     if selected_tab == "MP5":
         create_mp5_grid(selected_frame, root, "MP5")
+
     elif selected_tab == "MP4":
         create_mp4_grid(selected_frame, root, "MP4")
 
@@ -382,7 +383,7 @@ def create_gui():
     root.resizable(False, False)
 
     # Set default size of window to be large enough for mp4/mp5 item grids
-    root.geometry("800x380")
+    root.geometry("800x505")
 
     main_frame = ctk.CTkFrame(root)  # CTkFrame to hold version_frame and tab_parent
     main_frame.grid()
@@ -405,7 +406,7 @@ def create_gui():
 
     # Create Code Output Box
     global codeOut
-    codeOut = ctk.CTkTextbox(root, width=258, height=378)
+    codeOut = ctk.CTkTextbox(root, width=258, height=478)
     codeOut.bind("<Key>", lambda e: "break")
     codeOut.grid(row=0, column=2, sticky="e")
     printlogger = PrintLogger(codeOut) 
