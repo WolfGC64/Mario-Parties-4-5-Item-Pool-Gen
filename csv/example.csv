@@ -1,30 +1,30 @@
-name,weight,on/off
-Super Mushroom,9,1
-Cursed Mushroom,0,0
-Warp Pipe,0,0
-Klepto,3,1
-Bubble,0,0
-Wiggler,0,0
-Hammer Bro,0,0
-Coin Block,0,0
-Spiny,9,1
-Paratroopa,0,0
-Bullet Bill,0,0
-Goomba,0,0
-Bob-omb,0,0
-Koopa Bank,0,0
-Kamek,0,0
-Mr. Blizzard,0,0
-Piranha Plant,0,0
-Magikoopa,0,0
-Ukiki,0,0
-Lakitu,0,0
-Tweester,0,0
-Duel,0,0
-Chain Chomp,0,0
-Bone,0,0
-Bowser,0,0
-Chance,0,0
-Miracle,0,0
-Donkey Kong,0,0
-Versus,0,0
+name,weight,on/off,game,version
+Mushroom,0,0,MP5,3
+Super Mushroom,0,0,MP5,3
+Cursed Mushroom,0,0,MP5,3
+Warp Pipe,8,1,MP5,3
+Klepto,0,0,MP5,3
+Bubble,0,0,MP5,3
+Wiggler,8,1,MP5,3
+Hammer Bro,0,0,MP5,3
+Coin Block,0,0,MP5,3
+Spiny,8,1,MP5,3
+Paratroopa,0,0,MP5,3
+Bullet Bill,0,0,MP5,3
+Goomba,0,0,MP5,3
+Bob-omb,0,0,MP5,3
+Koopa Bank,0,0,MP5,3
+Kamek,0,0,MP5,3
+Mr. Blizzard,0,0,MP5,3
+Piranha Plant,0,0,MP5,3
+Magikoopa,0,0,MP5,3
+Ukiki,0,0,MP5,3
+Lakitu,0,0,MP5,3
+Tweester,0,0,MP5,3
+Duel,0,0,MP5,3
+Chain Chomp,0,0,MP5,3
+Bone,0,0,MP5,3
+Bowser,0,0,MP5,3
+Chance,0,0,MP5,3
+Miracle,0,0,MP5,3
+Donkey Kong,0,0,MP5,3

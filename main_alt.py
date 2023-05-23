@@ -56,6 +56,7 @@ def save_csv(tab_parent, version_var):
 
 
 def load_csv(tab_parent, version_var):
+    verList = ["JP", "US", "PAL"]
     file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
     if file_path:
         with open(file_path, 'r') as file:
@@ -64,7 +65,8 @@ def load_csv(tab_parent, version_var):
             
             game = first_row['game']
             version = first_row['version']
-            print(f"Game: {game}, Version: {version}")  # Print game and version
+            verInt = int(first_row['version'])
+            print(f"Game: {game}, Version: {verList[verInt-1]}")  # Print game and version
 
             # Process the first row separately
             if game == "MP4":
@@ -78,7 +80,7 @@ def load_csv(tab_parent, version_var):
                 tab_parent.select(mp5_tab)
                 clear_selections("MP5")
                 button_text_keys = list(button_texts_mp5.keys())
-                
+
             # Update the grid for the selected tab
             tab_parent.update()
 
@@ -87,10 +89,8 @@ def load_csv(tab_parent, version_var):
                 name = row['name']
                 weight = int(row['weight'])
                 checked = int(row['on/off'])
-                print(f"Name: {name}, Weight: {weight}, Checked: {checked}, Game: {game}")
                 if name in button_text_keys:
                     i = button_text_keys.index(name)
-                    print(i)
                     set_button_and_entry(game, i, weight, checked)
                     on_checkbutton_change(i, game)  # Update checkbox color
 

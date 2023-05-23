@@ -14,7 +14,7 @@ IF EXIST dist (
 )
 
 IF EXIST "%bin_dir%\main.exe" (
-    cd "%bin_dir%" && REN main.exe MP5CapsulePoolGen.exe && cd ..
+    cd "%bin_dir%" && REN main.exe MP4-MP5-ItemPoolGen.exe && cd ..
 )
 
 PAUSE
