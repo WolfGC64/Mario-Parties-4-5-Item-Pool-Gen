@@ -1,4 +1,4 @@
-# Mario Party 4 5 Item Pool Gen
+# Mario Party 4-5 Item Pool Gen
 This program generates a gecko code based on the selected item/weights given for mp4/mp5<br>
 This allows you to specify exactly what items you want to appear and the odds of getting each individual item<br>
 The odds are printed as perctanges when you hit `Generate Gecko Code`<br>
