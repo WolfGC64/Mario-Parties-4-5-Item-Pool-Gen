@@ -41,7 +41,7 @@ def set_button_and_entry(tab_name, index, weight, checked):
     else:
         check_buttons[tab_name][index].configure(fg_color='green')
 
-def save_csv(tab_parent):
+def save_csv(tab_parent, version_var):
     file_path = filedialog.asksaveasfilename(defaultextension='.csv', filetypes=[('CSV Files', '*.csv')])
     if file_path:
         selected_tab = tab_parent.get()  # Get currently selected tab ID
@@ -51,38 +51,50 @@ def save_csv(tab_parent):
             button_text_keys = list(button_texts_mp5.keys())
 
         with open(file_path, 'w', newline='') as file:
-            fieldnames = ['name', 'weight', 'on/off']
+            fieldnames = ['name', 'weight', 'on/off', 'game', 'version']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(len(button_text_keys)):
                 name = button_text_keys[i]
                 weight = int(entry_boxes[selected_tab][i].get())
                 checked = button_vars[selected_tab][i].get()
+                version = version_var.get()
+                tab = selected_tab
+                writer.writerow({'name': name, 'weight': weight, 'on/off': checked, 'game': tab, 'version': version})
 
-                writer.writerow({'name': name, 'weight': weight, 'on/off': checked})
 
-
-def load_csv(tab_parent):
+def load_csv(tab_parent, version_var):
     file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
     if file_path:
-        selected_tab = tab_parent.get()  # Get currently selected tab ID
-        if selected_tab == "MP4":
-            clear_selections("MP4")
-            button_text_keys = list(button_texts_mp4.keys())
-        elif selected_tab == "MP5":
-            clear_selections("MP5")
-            button_text_keys = list(button_texts_mp5.keys())
-
         with open(file_path, 'r') as file:
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
+                game = row['game']
+                version = int(row['version'])
+
+                if game == "MP4":
+                    clear_selections("MP4")
+                    button_text_keys = list(button_texts_mp4.keys())
+                elif game == "MP5":
+                    clear_selections("MP5")
+                    button_text_keys = list(button_texts_mp5.keys())
+                else:
+                    continue  # Skip rows with unexpected game values
+
+                # Switch to the appropriate tab
+                tab_parent.get(game)
+
                 name = row['name']
                 weight = int(row['weight'])
                 checked = int(row['on/off'])
+
                 if name in button_text_keys:
                     i = button_text_keys.index(name)
-                    set_button_and_entry(selected_tab, i, weight, checked)
-                    on_checkbutton_change(i, selected_tab)  # Update checkbox color
+                    set_button_and_entry(game, i, weight, checked)
+                    on_checkbutton_change(i, game)  # Update checkbox color
+
+                # Set the version radio button
+                version_var.set(version)
 
 
 def generate_gecko_code(tab_parent, version_var):
@@ -161,10 +173,12 @@ def generate_gecko_code(tab_parent, version_var):
 
 
 def on_generate_code(tab_parent, version_var):
+    global codeOut
+    
     no_weight = 0
     checked_weights = 0
     total_weights = 0
-    codeOut.delete('1.0', tk.END)
+    codeOut.delete('1.0', ctk.END)
     selected_tab = tab_parent.get()  # Get currently selected tab ID
 
     # choose button text keys from mp4 or mp5
@@ -390,11 +404,14 @@ def create_gui():
     # Set default size of window to be large enough for mp4/mp5 item grids
     root.geometry("800x515")
 
+    # Create version_var here for use with radio buttons and csv loading/saving
+    version_var = ctk.IntVar(value=1)  # Set default value to 1 (JP)
+
     menubar = tk.Menu(root)
     filemenu = tk.Menu(menubar, tearoff=0)
     filemenu.add_command(label="New", command=lambda: clear_options(tab_parent))
-    filemenu.add_command(label="Open", command=lambda: load_csv(tab_parent))
-    filemenu.add_command(label="Save", command=lambda: save_csv(tab_parent))
+    filemenu.add_command(label="Open", command=lambda: load_csv(tab_parent, version_var))
+    filemenu.add_command(label="Save", command=lambda: save_csv(tab_parent, version_var))
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=root.quit)
     menubar.add_cascade(label="File", menu=filemenu)
@@ -412,13 +429,11 @@ def create_gui():
     # Create Code Output Box
     global codeOut
     codeOut = ctk.CTkTextbox(root, width=258, height=478)
-    codeOut.bind("<Key>", lambda e: "break")
     codeOut.grid(row=0, column=2, sticky="e")
     printlogger = PrintLogger(codeOut) 
     sys.stdout = printlogger
 
     # Create version radiobuttons
-    version_var = ctk.IntVar(value=1)  # Set default value to 1 (JP)
     version_frame = ctk.CTkFrame(main_frame)
     version_frame.grid()
     version1_button = ctk.CTkRadioButton(version_frame, text="NTSC-J", variable=version_var, value=1)

@@ -6,6 +6,10 @@ stw r31, 0(r1)
 bl afterPercentages
 nop #padding convience for python program
 percentages:
+#Mushroom
+.2byte 0x0100 #weight
+.2byte 0x0000 #item ID
+
 #Super Mushroom
 .2byte 0x0101 #weight
 .2byte 0x0001 #item ID
@@ -117,10 +121,6 @@ percentages:
 #Donkey Kong
 .2byte 0x0122 #weight
 .2byte 0x0025 #item ID
-
-#Versus
-.2byte 0x0123 #weight
-.2byte 0x0026 #item ID
 
 .4byte 0 #padding for python program
 
