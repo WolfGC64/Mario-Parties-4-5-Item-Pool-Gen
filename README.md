@@ -6,7 +6,9 @@ To build the custom tkinter version, run `./build.bat` in powershell. You can th
 To run the normal tkinter build, simply run `python3 ./main.alt.py`<br>
 
 # Usage
-You will firstly need python 3 https://www.python.org/downloads/<br>
+Download the repo by clicking the green `<> code` button and hitting `download zip`<br>
+Extract this zip to a folder<br>
+Now, you will need to install python 3 https://www.python.org/downloads/<br>
 As of this readme, the version is 3.11<br>
 After python has installed, simply double click the `main_alt.py` file<br>
 Customize the items you want by checking them and then adding weights in each textbox<br>
