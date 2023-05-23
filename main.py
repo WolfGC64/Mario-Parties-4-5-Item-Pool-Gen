@@ -59,43 +59,47 @@ def save_csv(tab_parent, version_var):
                 weight = int(entry_boxes[selected_tab][i].get())
                 checked = button_vars[selected_tab][i].get()
                 version = version_var.get()
-                tab = selected_tab
-                writer.writerow({'name': name, 'weight': weight, 'on/off': checked, 'game': tab, 'version': version})
+                writer.writerow({'name': name, 'weight': weight, 'on/off': checked, 'game': selected_tab, 'version': version})
 
 
 def load_csv(tab_parent, version_var):
+    verList = ["JP", "US", "PAL"]
     file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
     if file_path:
         with open(file_path, 'r') as file:
             csv_reader = csv.DictReader(file)
-            for row in csv_reader:
-                game = row['game']
-                version = int(row['version'])
+            first_row = next(csv_reader)  # Read the first row
+            
+            game = first_row['game']
+            version = first_row['version']
+            verInt = int(first_row['version'])
+            print(f"Game: {game}, Version: {verList[verInt-1]}")  # Print game and version
 
-                if game == "MP4":
-                    clear_selections("MP4")
-                    button_text_keys = list(button_texts_mp4.keys())
-                elif game == "MP5":
-                    clear_selections("MP5")
-                    button_text_keys = list(button_texts_mp5.keys())
-                else:
-                    continue  # Skip rows with unexpected game values
+            # Process the first row separately
+            if game == "MP4":
+                version_var.set(version)
+                tab_parent.set("MP4")
+                clear_selections("MP4")
+                button_text_keys = list(button_texts_mp4.keys())
 
-                # Switch to the appropriate tab
-                tab_parent.get()
+            elif game == "MP5":
+                version_var.set(version)
+                tab_parent.set("MP5")
+                clear_selections("MP5")
+                button_text_keys = list(button_texts_mp5.keys())
 
+            # Update the grid for the selected tab
+            tab_parent.update()
+
+            # Process the remaining rows in the CSV
+            for row in [first_row] + list(csv_reader):
                 name = row['name']
                 weight = int(row['weight'])
                 checked = int(row['on/off'])
-
                 if name in button_text_keys:
                     i = button_text_keys.index(name)
                     set_button_and_entry(game, i, weight, checked)
                     on_checkbutton_change(i, game)  # Update checkbox color
-
-                # Set the version radio button
-                version_var.set(version)
-
 
 def generate_gecko_code(tab_parent, version_var):
     selected_tab = tab_parent.get()  # Get currently selected tab ID
