@@ -10,7 +10,7 @@ To run the normal tkinter build, simply run `python3 ./main.alt.py`<br>
 
 # Currently supported Games/Versions
 Mario party 4 supports US/PAL<br>
-Mario party 5 only supports PAL<br>
+Mario party 5 supports US/PAL<br>
 
 # Known Issues
 As of commit `2aeb8710dc41519429a9cb139a7d67ce29f7d9b6`, the normal tkinter build works fine<br>
