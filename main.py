@@ -1,10 +1,24 @@
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk
 from tkinter import filedialog
+from PIL import Image
 import os
 import csv
+import sys
+import pyperclip
 import time
 from gecko_code_dictionaries import *
+
+class PrintLogger: 
+    def __init__(self, textbox): 
+        self.textbox = textbox 
+ 
+    def write(self, text): 
+        self.textbox.insert(ctk.END, text) 
+
+    def flush(self):
+        pass
 
 #define dictionaries
 button_vars = {}
@@ -13,28 +27,27 @@ check_buttons = {}
 
 def clear_selections(tab_name):
     for i, var in enumerate(button_vars[tab_name]):
-        entry_boxes[tab_name][i].delete(0, tk.END)
+        entry_boxes[tab_name][i].delete(0, ctk.END)
         entry_boxes[tab_name][i].insert(0, '0')
-        check_buttons[tab_name][i].config(fg='grey') # Set the color to a lighter one when not checked
+        check_buttons[tab_name][i].configure(fg_color='grey') # Set the color to a lighter one when not checked
         var.set(0)
 
 def set_button_and_entry(tab_name, index, weight, checked):
     button_vars[tab_name][index].set(checked)
-    entry_boxes[tab_name][index].delete(0, tk.END)
+    entry_boxes[tab_name][index].delete(0, ctk.END)
     entry_boxes[tab_name][index].insert(0, str(weight))
     if checked == 0:
-        check_buttons[tab_name][index].config(fg='grey')
+        check_buttons[tab_name][index].configure(fg_color='grey')
     else:
-        check_buttons[tab_name][index].config(fg='black')
+        check_buttons[tab_name][index].configure(fg_color='green')
 
 def save_csv(tab_parent):
     file_path = filedialog.asksaveasfilename(defaultextension='.csv', filetypes=[('CSV Files', '*.csv')])
     if file_path:
-        selected_tab = tab_parent.select()  # Get currently selected tab ID
-        selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
-        if selected_tab_text == "MP4":
+        selected_tab = tab_parent.get()  # Get currently selected tab ID
+        if selected_tab == "MP4":
             button_text_keys = list(button_texts_mp4.keys())
-        elif selected_tab_text == "MP5":
+        elif selected_tab == "MP5":
             button_text_keys = list(button_texts_mp5.keys())
 
         with open(file_path, 'w', newline='') as file:
@@ -43,8 +56,8 @@ def save_csv(tab_parent):
             writer.writeheader()
             for i in range(len(button_text_keys)):
                 name = button_text_keys[i]
-                weight = int(entry_boxes[selected_tab_text][i].get())
-                checked = button_vars[selected_tab_text][i].get()
+                weight = int(entry_boxes[selected_tab][i].get())
+                checked = button_vars[selected_tab][i].get()
 
                 writer.writerow({'name': name, 'weight': weight, 'on/off': checked})
 
@@ -52,12 +65,11 @@ def save_csv(tab_parent):
 def load_csv(tab_parent):
     file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
     if file_path:
-        selected_tab = tab_parent.select()  # Get currently selected tab ID
-        selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
-        if selected_tab_text == "MP4":
+        selected_tab = tab_parent.get()  # Get currently selected tab ID
+        if selected_tab == "MP4":
             clear_selections("MP4")
             button_text_keys = list(button_texts_mp4.keys())
-        elif selected_tab_text == "MP5":
+        elif selected_tab == "MP5":
             clear_selections("MP5")
             button_text_keys = list(button_texts_mp5.keys())
 
@@ -69,16 +81,15 @@ def load_csv(tab_parent):
                 checked = int(row['on/off'])
                 if name in button_text_keys:
                     i = button_text_keys.index(name)
-                    set_button_and_entry(selected_tab_text, i, weight, checked)
-                    on_checkbutton_change(i, selected_tab_text)  # Update checkbox color
+                    set_button_and_entry(selected_tab, i, weight, checked)
+                    on_checkbutton_change(i, selected_tab)  # Update checkbox color
 
 
 def generate_gecko_code(tab_parent, version_var):
-    selected_tab = tab_parent.select()  # Get currently selected tab ID
-    selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
+    selected_tab = tab_parent.get()  # Get currently selected tab ID
     
     # Draw the appropriate grid
-    if selected_tab_text == "MP5":
+    if selected_tab == "MP5":
         button_text_keys = list(button_texts_mp5.keys())
         entry_boxes_dict = entry_boxes["MP5"]
         button_texts_dict = button_texts_mp5
@@ -99,7 +110,7 @@ def generate_gecko_code(tab_parent, version_var):
             gecko_code_footer = ""
             print("Invalid version!")
             return
-    elif selected_tab_text == "MP4":
+    elif selected_tab == "MP4":
         button_text_keys = list(button_texts_mp4.keys())
         entry_boxes_dict = entry_boxes["MP4"]
         button_texts_dict = button_texts_mp4
@@ -146,25 +157,23 @@ def generate_gecko_code(tab_parent, version_var):
             code_str += " "
     
     print("\n" + gecko_code_header + code_str + "00000000" + gecko_code_footer)
+    pyperclip.copy(gecko_code_header + code_str + "00000000" + gecko_code_footer)
+
 
 def on_generate_code(tab_parent, version_var):
     no_weight = 0
     checked_weights = 0
     total_weights = 0
-    #clear twice to avoid powershell leaving stuff in the window
-    os.system('cls')  # Clear console for Windows
-    os.system('cls')  # Clear console for Windows
-
-    selected_tab = tab_parent.select()  # Get currently selected tab ID
-    selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
+    codeOut.delete('1.0', tk.END)
+    selected_tab = tab_parent.get()  # Get currently selected tab ID
 
     # choose button text keys from mp4 or mp5
-    if selected_tab_text == "MP4":
+    if selected_tab == "MP4":
         button_text_keys = list(button_texts_mp4.keys())
         button_vars_dict = button_vars["MP4"]
         entry_boxes_dict = entry_boxes["MP4"]
         check_buttons_dict = check_buttons["MP4"]
-    elif selected_tab_text == "MP5":
+    elif selected_tab == "MP5":
         button_text_keys = list(button_texts_mp5.keys())
         button_vars_dict = button_vars["MP5"]
         entry_boxes_dict = entry_boxes["MP5"]
@@ -172,7 +181,7 @@ def on_generate_code(tab_parent, version_var):
 
     for i, var in enumerate(button_vars_dict):
         current_weight = int(entry_boxes_dict[i].get())
-        if check_buttons_dict[i].cget('fg') == 'grey':
+        if check_buttons_dict[i].cget('fg_color') == 'grey':
             continue
         total_weights += current_weight
         if var.get() == 1:
@@ -191,14 +200,14 @@ def on_generate_code(tab_parent, version_var):
     selected_value = version_var.get()
 
     if selected_value == 1:
-        print(f"Generating code for {selected_tab_text} JP")
+        print(f"Generating code for {selected_tab} JP\n")
     elif selected_value == 2:
-        print(f"Generating code for {selected_tab_text} US")
+        print(f"Generating code for {selected_tab} US\n")
     elif selected_value == 3:
-        print(f"Generating code for {selected_tab_text} PAL")
+        print(f"Generating code for {selected_tab} PAL\n")
 
     for i, var in enumerate(button_vars_dict):
-        if check_buttons_dict[i].cget('fg') == 'grey':
+        if check_buttons_dict[i].cget('fg_color') == 'grey':
             continue
         current_weight = int(entry_boxes_dict[i].get())
         if current_weight == 0:
@@ -206,7 +215,7 @@ def on_generate_code(tab_parent, version_var):
         item_name = button_text_keys[i]  # Get the name of the checked item
         item_percentage = (current_weight / total_weights) * 100
         if item_percentage != 0:
-            print(f'  {item_name}: {item_percentage:.2f}%')
+            print(f'{item_name}: {item_percentage:.2f}%')
 
     checked_buttons = [i + 1 for i, var in enumerate(button_vars_dict) if var.get() == 1]
 
@@ -217,21 +226,38 @@ def on_generate_code(tab_parent, version_var):
 
 def on_checkbutton_change(index, tab_name):
     if button_vars[tab_name][index].get() == 0:
-        entry_boxes[tab_name][index].delete(0, tk.END)
+        entry_boxes[tab_name][index].delete(0, ctk.END)
         entry_boxes[tab_name][index].insert(0, "0")
-        check_buttons[tab_name][index].config(fg='grey') # Set the color to a lighter one when not checked
+        check_buttons[tab_name][index].configure(fg_color='grey') # Set the color to a lighter one when not checked
     else:
-        check_buttons[tab_name][index].config(fg='black') # Set the color to a darker one when checked
+        check_buttons[tab_name][index].configure(fg_color='green') # Set the color to a darker one when checked
 
 def open_help_window():
-    help_window = tk.Toplevel()
-    help_window.title("Help")
+    help_window = ctk.CTkToplevel()
+    help_window.attributes('-topmost', True)
+    help_window.title("About")
+    help_window.lift()
     help_window.geometry("300x200")
 
-    #TODO fill in help text
-    help_text = "This is the help text.\n\nYou can provide instructions or information here."
-    help_label = tk.Label(help_window, text=help_text)
+    frame = ctk.CTkFrame(help_window, width=600, height=400)
+    frame.pack()
+    frame.place(anchor='center', relx=0.5, rely=0.5)
+
+    datafile = "ico/icon.ico"
+    datafileFrozen = "icon.ico"
+    if not hasattr(sys, "frozen"):
+        datafile = os.path.join(os.path.dirname(__file__), datafile) 
+    else:  
+        datafile = os.path.join(sys.prefix, datafileFrozen)
+
+    img = ctk.CTkImage(Image.open(datafile), size=(64, 64))
+    img = ctk.CTkLabel(frame, image=img, text="", height=64, width=64)
+    img.pack()
+
+    help_text = "Mario Party 4/5 Item Pool Generator\nWritten by Rain, GUI by Nayla."
+    help_label = ctk.CTkLabel(help_window, text=help_text)
     help_label.pack()
+
 
 def limit_size(P):
     if len(P) > 3: 
@@ -244,11 +270,10 @@ def limit_size(P):
         return False
 
 def clear_options(tab_parent):
-    selected_tab = tab_parent.select()  # Get currently selected tab ID
-    selected_tab_text = tab_parent.tab(selected_tab, "text")  # Get the text of the selected tab
-    if selected_tab_text == "MP4":
+    selected_tab = tab_parent.get()  # Get currently selected tab ID
+    if selected_tab == "MP4":
         clear_selections("MP4")
-    elif selected_tab_text == "MP5":
+    elif selected_tab == "MP5":
         clear_selections("MP5")
 
 
@@ -269,17 +294,17 @@ def create_mp5_grid(parent, root, tab_name):
             index = i * num_columns + j
             button_text_keys = list(button_texts_mp5.keys())
             if index < len(button_texts_mp5):
-                var = tk.IntVar()
+                var = ctk.IntVar()
                 button_vars[tab_name].append(var)
 
-                entry_var = tk.StringVar()
+                entry_var = ctk.StringVar()
                 entry_var.set('0')  # Set default value to "0"
                 vcmd = root.register(limit_size)
 
-                entry = tk.Entry(parent, width=4, textvariable=entry_var, validate='key', validatecommand=(vcmd, '%P'))
+                entry = ctk.CTkEntry(master=tab_parent.tab("MP5"), width=30, textvariable=entry_var, validate='key', validatecommand=(vcmd, '%P'))
                 entry_boxes[tab_name].append(entry)
 
-                checkbutton = tk.Checkbutton(parent, text=button_text_keys[index], variable=var, fg='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
+                checkbutton = ctk.CTkCheckBox(master=tab_parent.tab("MP5"), text=button_text_keys[index], variable=var, fg_color='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
                 check_buttons[tab_name].append(checkbutton)  # Store the check button
 
                 entry.grid(row=i, column=j*2, padx=5, pady=5, sticky="e")
@@ -302,25 +327,25 @@ def create_mp4_grid(parent, root, tab_name):
             index = i * num_columns + j
             button_text_keys = list(button_texts_mp4.keys())
             if index < len(button_texts_mp4):
-                var = tk.IntVar()
+                var = ctk.IntVar()
                 button_vars[tab_name].append(var)
 
-                entry_var = tk.StringVar()
+                entry_var = ctk.StringVar()
                 entry_var.set('0')  # Set default value to "0"
                 vcmd = root.register(limit_size)
 
-                entry = tk.Entry(parent, width=4, textvariable=entry_var, validate='key', validatecommand=(vcmd, '%P'))
+                entry = ctk.CTkEntry(master=tab_parent.tab("MP4"), width=30, textvariable=entry_var, validate='key', validatecommand=(vcmd, '%P'))
                 entry_boxes[tab_name].append(entry)
 
-                checkbutton = tk.Checkbutton(parent, text=button_text_keys[index], variable=var, fg='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
+                checkbutton = ctk.CTkCheckBox(master=tab_parent.tab("MP4"), text=button_text_keys[index], variable=var, fg_color='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
                 check_buttons[tab_name].append(checkbutton)  # Store the check button
-
+    
                 entry.grid(row=i, column=j*2, padx=5, pady=5, sticky="e")
                 checkbutton.grid(row=i, column=j*2+1, padx=5, pady=5, sticky="w")
                 
 def on_tab_changed(event, root):
     selected_tab = event.widget.select()
-    selected_tab_text = event.widget.tab(selected_tab, 'text')
+    selected_tab = event.widget.tab(selected_tab, 'text')
 
     # Get the frame of the selected tab
     selected_frame = event.widget.nametowidget(selected_tab)
@@ -330,9 +355,10 @@ def on_tab_changed(event, root):
         widget.destroy()
 
     # Create new grid based on the selected tab
-    if selected_tab_text == "MP5":
+    if selected_tab == "MP5":
         create_mp5_grid(selected_frame, root, "MP5")
-    elif selected_tab_text == "MP4":
+
+    elif selected_tab == "MP4":
         create_mp4_grid(selected_frame, root, "MP4")
 
 
@@ -342,65 +368,89 @@ def create_gui():
     global button_vars
     global entry_boxes
 
-    root = tk.Tk()
+    ctk.set_appearance_mode("system")  # Modes: system (default), light, dark
+    ctk.set_default_color_theme("green")  # Themes: blue (default), dark-blue, green
+
+    root = ctk.CTk()
     root.title("Mario Party 4/5 Item Pool Generator")
-    root.iconbitmap("ico/Miracle_Capsule.ico")
+
+    # Frozen Icon for Executable
+    datafile = "ico/icon.ico"
+    datafileFrozen = "icon.ico"
+    if not hasattr(sys, "frozen"):
+        datafile = os.path.join(os.path.dirname(__file__), datafile) 
+    else:  
+        datafile = os.path.join(sys.prefix, datafileFrozen)
+   
+    root.iconbitmap(datafile)
+
+    # No Resizing
+    root.resizable(False, False)
 
     # Set default size of window to be large enough for mp4/mp5 item grids
-    root.geometry("600x550")  # Width x Height in pixels
+    root.geometry("800x515")
 
-    main_frame = tk.Frame(root)  # Frame to hold version_frame and tab_parent
-    main_frame.pack()
+    menubar = tk.Menu(root)
+    filemenu = tk.Menu(menubar, tearoff=0)
+    filemenu.add_command(label="New", command=lambda: clear_options(tab_parent))
+    filemenu.add_command(label="Open", command=lambda: load_csv(tab_parent))
+    filemenu.add_command(label="Save", command=lambda: save_csv(tab_parent))
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=root.quit)
+    menubar.add_cascade(label="File", menu=filemenu)
 
-    # Create a button frame to hold the buttons
-    button_frame = tk.Frame(main_frame)
-    button_frame.pack(side=tk.TOP, fill=tk.X)
+    helpmenu = tk.Menu(menubar, tearoff=0)
+    helpmenu.add_command(label="About...", command=open_help_window)
+    menubar.add_cascade(label="Help", menu=helpmenu)
 
-    # Create 'Save CSV' button and add to button_frame
-    save_button = tk.Button(button_frame, text="Save CSV", command=lambda: save_csv(tab_parent))
-    save_button.pack(side=tk.LEFT)
+    root.config(menu=menubar)
 
-    # Create 'Load CSV' button and add to button_frame
-    load_button = tk.Button(button_frame, text="Load CSV", command=lambda: load_csv(tab_parent))
-    load_button.pack(side=tk.LEFT)
 
-    # Create 'Clear All' button and add to button_frame
-    clear_button = tk.Button(button_frame, text="Clear All", command=lambda: clear_options(tab_parent))
-    clear_button.pack(side=tk.LEFT)
+    main_frame = ctk.CTkFrame(root)  # CTkFrame to hold version_frame and tab_parent
+    main_frame.grid()
+    
+    # Create Code Output Box
+    global codeOut
+    codeOut = ctk.CTkTextbox(root, width=258, height=478)
+    codeOut.bind("<Key>", lambda e: "break")
+    codeOut.grid(row=0, column=2, sticky="e")
+    printlogger = PrintLogger(codeOut) 
+    sys.stdout = printlogger
 
     # Create version radiobuttons
-    version_var = tk.IntVar(value=1)  # Set default value to 1 (JP)
-    version_frame = tk.Frame(main_frame)
-    version_frame.pack()
-    version1_button = tk.Radiobutton(version_frame, text="JP", variable=version_var, value=1)
-    version1_button.pack(side=tk.LEFT)
-    version2_button = tk.Radiobutton(version_frame, text="US", variable=version_var, value=2)
-    version2_button.pack(side=tk.LEFT)
-    version3_button = tk.Radiobutton(version_frame, text="PAL", variable=version_var, value=3)
-    version3_button.pack(side=tk.LEFT)
+    version_var = ctk.IntVar(value=1)  # Set default value to 1 (JP)
+    version_frame = ctk.CTkFrame(main_frame)
+    version_frame.grid()
+    version1_button = ctk.CTkRadioButton(version_frame, text="NTSC-J", variable=version_var, value=1)
+    version1_button.grid(row=1, column=0)
+    version2_button = ctk.CTkRadioButton(version_frame, text="NTSC-U", variable=version_var, value=2)
+    version2_button.grid(row=1, column=1)
+    version3_button = ctk.CTkRadioButton(version_frame, text="PAL", variable=version_var, value=3)
+    version3_button.grid(row=1, column=2)
 
-    tab_parent = ttk.Notebook(main_frame)  # Place inside main_frame
+    global tab_parent
+    tab_parent = ctk.CTkTabview(main_frame)  # Place inside main_frame
 
-    mp4_tab = ttk.Frame(tab_parent)
-    mp5_tab = ttk.Frame(tab_parent)
-    tab_parent.add(mp4_tab, text="MP4")
-    tab_parent.add(mp5_tab, text="MP5")
-    tab_parent.pack(expand=1, fill='both')
+    mp4_tab = ctk.CTkFrame(tab_parent)
+    mp5_tab = ctk.CTkFrame(tab_parent)
+    tab_parent.add("MP4")
+    tab_parent.add("MP5")
+    tab_parent.grid(row=2, column=0)
 
     # Create a button frame to hold the buttons
-    gen_code_button = tk.Frame(main_frame)
-    gen_code_button.pack(side=tk.TOP, fill=tk.X)
+    gen_code_button = ctk.CTkFrame(main_frame)
+    gen_code_button.grid(row=3, column=0)
 
     # Create 'Generate Gecko Code' button and add to gen_code_button
-    generate_button = tk.Button(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent, version_var))
-    generate_button.pack(side=tk.LEFT)
+    generate_button = ctk.CTkButton(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_parent, version_var))
+    generate_button.grid(row=3, column=1)
 
     # Store tabs in a dictionary
     tab_parent.tabs = {"MP4": mp4_tab, "MP5": mp5_tab}
 
     create_mp4_grid(mp4_tab, root, "MP4")
     create_mp5_grid(mp5_tab, root, "MP5")
-    tab_parent.bind("<<NotebookTabChanged>>", lambda event: on_tab_changed(event, root))
+    #tab_parent.bind("", lambda event: on_tab_changed(event, root))
     root.mainloop()
 
 
