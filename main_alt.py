@@ -114,12 +114,15 @@ def generate_gecko_code(tab_parent, version_var):
         if version_var.get() == 3: # PAL
             gecko_code_header = gecko_code_header_mp5_pal
             gecko_code_footer = gecko_code_footer_mp5_pal
+            price_base_addr = 0   
         elif version_var.get() == 2: # US
             gecko_code_header = gecko_code_header_mp5_us
             gecko_code_footer = gecko_code_footer_mp5_us
+            price_base_addr = 0   
         elif version_var.get() == 1: # JP
             gecko_code_header = gecko_code_header_mp5_jp
-            gecko_code_footer = gecko_code_footer_mp5_jp           
+            gecko_code_footer = gecko_code_footer_mp5_jp
+            price_base_addr = 0           
         else:
             button_text_keys = []  # Define an empty list if version is not valid
             weight_boxes_dict = {}
@@ -180,7 +183,9 @@ def generate_gecko_code(tab_parent, version_var):
         # Append to the code string
         code_str += weight_hex + item_id
         
-        price_str += str(hex(price_base_addr + int(item_id, 16)))[2:].upper().zfill(8) + " " + price.upper() + "\n"
+        if (price_base_addr != 0):
+            price_str += str(hex(price_base_addr + int(item_id, 16)))[2:].upper().zfill(8) + " " + price.upper() + "\n"
+        
         #price_str += price
 
         # Add a newline character after odd iterations, and a space after even iterations
@@ -190,7 +195,8 @@ def generate_gecko_code(tab_parent, version_var):
             code_str += " "
     
     print("\n" + gecko_code_header + code_str + "00000000" + gecko_code_footer)
-    print(f"{price_str}")
+    if (price_base_addr != 0):
+        print(f"{price_str}")
 
 def on_generate_code(tab_parent, version_var):
     no_weight = 0
@@ -330,14 +336,14 @@ def create_mp5_grid(parent, root, tab_name):
                 entry = tk.Entry(parent, width=4, textvariable=entry_var, validate='key', validatecommand=(vcmd, '%P'))
                 weight_boxes[tab_name].append(entry)
 
-                price = tk.Entry(parent, width=4, textvariable=price_var, validate='key', validatecommand=(vcmd, '%P'))
+                price = tk.Entry(parent, width=0, textvariable=price_var, validate='key', validatecommand=(vcmd, '%P'))
                 price_boxes[tab_name].append(price)
 
                 checkbutton = tk.Checkbutton(parent, text=button_text_keys[index], variable=var, fg='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
                 check_buttons[tab_name].append(checkbutton)  # Store the check button
 
                 entry.grid(row=i, column=j*2, padx=20, pady=5, sticky="e")
-                price.grid(row=i, column=j*2, padx=0, pady=5, sticky="e")
+                #price.grid(row=i, column=j*2, padx=0, pady=5, sticky="e")
                 checkbutton.grid(row=i, column=j*2+1, padx=5, pady=5, sticky="w")
 
 # Update the function that creates the grid for a given tab
