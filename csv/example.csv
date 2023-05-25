@@ -1,30 +1,14 @@
-name,weight,on/off,game,version
-Mushroom,0,0,MP5,3
-Super Mushroom,0,0,MP5,3
-Cursed Mushroom,0,0,MP5,3
-Warp Pipe,8,1,MP5,3
-Klepto,0,0,MP5,3
-Bubble,0,0,MP5,3
-Wiggler,8,1,MP5,3
-Hammer Bro,0,0,MP5,3
-Coin Block,0,0,MP5,3
-Spiny,8,1,MP5,3
-Paratroopa,0,0,MP5,3
-Bullet Bill,0,0,MP5,3
-Goomba,0,0,MP5,3
-Bob-omb,0,0,MP5,3
-Koopa Bank,0,0,MP5,3
-Kamek,0,0,MP5,3
-Mr. Blizzard,0,0,MP5,3
-Piranha Plant,0,0,MP5,3
-Magikoopa,0,0,MP5,3
-Ukiki,0,0,MP5,3
-Lakitu,0,0,MP5,3
-Tweester,0,0,MP5,3
-Duel,0,0,MP5,3
-Chain Chomp,0,0,MP5,3
-Bone,0,0,MP5,3
-Bowser,0,0,MP5,3
-Chance,0,0,MP5,3
-Miracle,0,0,MP5,3
-Donkey Kong,0,0,MP5,3
+name,weight,price,on/off,game,version
+Mini Mushroom,2,10,1,MP4,2
+Mushroom,0,0,0,MP4,2
+Super Mini,0,0,0,MP4,2
+Super Mega,3,10,1,MP4,2
+Mini-Mega Hammer,0,0,0,MP4,2
+Warp Pipe,0,0,0,MP4,2
+Swap Card,4,10,1,MP4,2
+Sparky Sticker,0,0,0,MP4,2
+Gaddlight,0,0,0,MP4,2
+Chomp Call,5,10,1,MP4,2
+Bowser Suit,0,0,0,MP4,2
+Boo Crystal Ball,0,0,0,MP4,2
+Magic Lamp,0,0,0,MP4,2
