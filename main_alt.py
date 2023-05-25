@@ -342,7 +342,7 @@ def create_mp5_grid(parent, root, tab_name):
                 checkbutton = tk.Checkbutton(parent, text=button_text_keys[index], variable=var, fg='grey', command=lambda i=index: on_checkbutton_change(i, tab_name))
                 check_buttons[tab_name].append(checkbutton)  # Store the check button
 
-                entry.grid(row=i, column=j*2, padx=20, pady=5, sticky="e")
+                entry.grid(row=i, column=j*2, padx=5, pady=5, sticky="e")
                 #price.grid(row=i, column=j*2, padx=0, pady=5, sticky="e")
                 checkbutton.grid(row=i, column=j*2+1, padx=5, pady=5, sticky="w")
 
