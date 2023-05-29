@@ -1,0 +1,270 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter import PhotoImage
+from gecko_code_dictionaries import *
+from tkinter import filedialog
+import csv
+
+frames = []
+price_vars = []  # List to store price values
+weight_vars = []  # List to store weight values
+check_vars = []  # List to store check values
+
+def on_checkbutton_change(index):
+    if check_vars[index].get():  # if checked
+        checkbuttons[index].config(fg='black')
+    else:  # if not checked
+        checkbuttons[index].config(fg='grey')
+
+
+def create_grid(frame, rows, columns, text_keys, text_items, current_tab):
+    global price_vars
+    global weight_vars
+    global check_vars
+    global checkbuttons
+    price_vars = []  # List to store price values
+    weight_vars = []  # List to store weight values
+    check_vars = []  # List to store check values
+    check_vars = []
+    checkbuttons = []  # list to hold checkbutton widgets
+    index = 0
+
+    for r in range(rows):
+        for c in range(columns):
+            items_per_column = 3
+            for i in range(items_per_column): #show items in rows of 3s
+                if index >= len(text_keys):
+                    return
+
+                cur_row = rows * (r * columns + c)
+                button_text, (price, weight, checked) = text_items[index]
+
+                price_str_test = str(price)
+                weight_str_test = str(weight)
+                
+                weight_icon = PhotoImage(file="ico/weight_icon_small_2.png")
+                weight_icon_label = tk.Label(frame, image=weight_icon)
+                weight_icon_label.image = weight_icon  # Keep a reference to the coin image
+                weight_icon_label.grid(row=cur_row, column=i * items_per_column + 1, sticky="w")
+
+                price_icon = PhotoImage(file="ico/price_icon_small_2.png")
+                price_icon_label = tk.Label(frame, image=price_icon)
+                price_icon_label.image = price_icon  # Keep a reference to the weight image
+                price_icon_label.grid(row=cur_row, column=i * items_per_column, sticky="w")
+
+                # Create Entry widgets for price box
+                price_var = tk.StringVar(value=price_str_test)  # StringVar to store price value
+                price_entry = tk.Entry(frame, width=3, textvariable=price_var)
+                price_entry.grid(row=cur_row+1, column=i * items_per_column)
+                price_vars.append(price_var)  # Store price_var in the list
+
+                weight_var = tk.StringVar(value=weight_str_test)  # StringVar to store weight value
+                weight_entry = tk.Entry(frame, width=3, textvariable=weight_var)
+                weight_entry.grid(row=cur_row+1, column=i * items_per_column + 1)
+                weight_vars.append(weight_var)  # Store weight_var in the list
+
+                check_var = tk.BooleanVar(value=checked)
+                
+                if (check_var.get() == False):
+                    checkbutton = tk.Checkbutton(frame, text=text_keys[index], variable=check_var, fg='grey', command=lambda index=index: on_checkbutton_change(index))
+                else:
+                    checkbutton = tk.Checkbutton(frame, text=text_keys[index], variable=check_var, fg='black', command=lambda index=index: on_checkbutton_change(index))
+                checkbutton.grid(row=cur_row + 1, column=i * items_per_column + 2, sticky="w")
+                check_vars.append(check_var)  # Store check_var in the list
+                checkbuttons.append(checkbutton)  # Store checkbutton in the list
+
+                index += 1
+
+
+def tab_selected(event, tab_control):
+    elements_per_row = 3
+    max_num_of_columns = 10
+
+    # Get the currently selected tab index
+    current_tab = tab_control.index("current")
+    #print(f"Current tab index{current_tab}")
+    
+    # Clear the frame before creating a new grid
+    frame = frames[current_tab]
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    button_text_keys = list(button_texts_list[current_tab].keys())
+    button_text_items = list(button_texts_list[current_tab].items())
+    create_grid(frame, elements_per_row, max_num_of_columns, button_text_keys, button_text_items, current_tab)
+
+
+def limit_size(P):
+    if len(P) > 3: 
+        return False
+    if len(P) < 1: # Allow empty entries
+        return True
+    if P.isdigit() and 0 <= int(P) <= 999: # Check for a valid integer within the range
+        return True
+    else:
+        return False
+
+
+def open_help_window():
+    help_window = tk.Toplevel()
+    help_window.title("Help")
+    help_window.geometry("300x200")
+
+    help_text = "Mario Party 4/5/6 Item Pool Generator\nWritten by Rain"
+    help_label = tk.Label(help_window, text=help_text)
+    help_label.pack()
+
+
+def clear_grid(window):
+    print("clear")
+
+
+def create_file_menu(window, tab_control, version_var):
+    menubar = tk.Menu(window)
+    filemenu = tk.Menu(menubar, tearoff=0)
+    filemenu.add_command(label="New", command=lambda: clear_grid(menubar))
+    filemenu.add_command(label="Open", command=lambda: load_csv(tab_control, version_var))
+    filemenu.add_command(label="Save", command=lambda: save_csv(tab_control, version_var))
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=window.quit)
+    menubar.add_cascade(label="File", menu=filemenu)
+    helpmenu = tk.Menu(menubar, tearoff=0)
+    helpmenu.add_command(label="About...", command=open_help_window)
+    menubar.add_cascade(label="Help", menu=helpmenu)
+    window.config(menu=menubar)
+    
+
+def create_version_buttons(window, version_var):
+    # Create version radiobuttons
+    version_frame = tk.Frame(window)
+    version_frame.pack(side=tk.TOP)
+    version_jp_button = tk.Radiobutton(window, text="JP", variable=version_var, value=0)
+    version_jp_button.pack()
+    version_us_button = tk.Radiobutton(window, text="US", variable=version_var, value=1)
+    version_us_button.pack()
+    version_pal_button = tk.Radiobutton(window, text="PAL", variable=version_var, value=2)
+    version_pal_button.pack()
+
+
+def on_generate_code(tab_control, version_var):
+    no_weight = 0
+    checked_weights = 0
+    total_weights = 0
+    #clear twice to avoid powershell leaving stuff in the window
+    os.system('cls')  # Clear console for Windows
+    os.system('cls')  # Clear console for Windows
+    # Get the currently selected tab index
+    current_tab = tab_control.index("current")
+    
+
+
+def load_csv(tab_control, version_var):
+    verList = ["JP", "US", "PAL"]
+    gameList = ["MP4", "MP5", "MP6"]
+    global price_vars
+    global weight_vars
+    global check_vars
+    global checkbuttons
+    file_path = filedialog.askopenfilename(filetypes=[('CSV Files', '*.csv')])
+    if file_path:
+        with open(file_path, 'r') as file:
+            csv_reader = csv.DictReader(file)
+            data = list(csv_reader)  # Convert csv_reader to list for easy access
+            game = data[0]['game']  # First row's game field
+            for i in range(3):
+                if game == gameList[i]:
+                    break
+
+            tab_control.select(frames[i])
+            current_tab = tab_control.index("current")
+            tab_control.update()
+            clear_grid(frames[i])
+
+            text_keys = [row['name'] for row in data]
+            text_items = [(row['name'], (row['price'], row['weight'], row['on/off'],)) for row in data]
+            #print(text_keys)
+            print(f"Text Items:\n {text_items}")
+
+            create_grid(frames[i], 3, 10, text_keys, text_items, current_tab)
+            
+            for index, row in enumerate(data):
+                price_vars[index].set(row['price'])
+                weight_vars[index].set(row['weight'])
+                check_vars[index].set(row['on/off'] == 'True')  # Convert string 'True'/'False' to boolean
+                on_checkbutton_change(index)  # Update checkbutton widget
+
+
+
+def save_csv(tab_control, version_var):
+    current_tab = tab_control.index("current")
+    print(f"tab index {current_tab}")
+
+    file_path = filedialog.asksaveasfilename(defaultextension='.csv', filetypes=[('CSV Files', '*.csv')])
+
+    if not file_path:
+        return
+
+    button_texts = button_texts_list[current_tab]
+    version = version_var.get()
+
+    with open(file_path, 'w', newline='') as file:
+        fieldnames = ['name', 'price', 'weight', 'on/off', 'game', 'version']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+
+        button_text_keys = list(button_texts.keys())  # Convert keys to a list
+        for i in range(len(button_text_keys)):
+            weight_value = weight_vars[i].get()
+            price_value = price_vars[i].get()
+            checked = check_vars[i].get()
+            game = f"MP{4 + current_tab}"
+
+            # print(f"Key: {button_text_keys[i]}")
+            # print(f"Weight: {weight_value}")
+            # print(f"Price: {price_value}")
+            # print(f"Checked: {checked}")
+            # print(f"Game: {game}")
+            # print(f"Version: {version}\n")
+
+            writer.writerow({'name': button_text_keys[i], 'price': price_value, 'weight': weight_value, 'on/off': checked, 'game': game, 'version': version})
+
+
+def run_gui():
+    window = tk.Tk()
+    window.title("Mario Party 4/5 Item Pool Generator")
+    window.iconbitmap("ico/icon.ico")
+    window.geometry("600x650")  # Width x Height in pixels
+
+    # Create version_var for save/load csv
+    version_var = tk.IntVar(value=1)  # Set default value to 1 (US)
+
+    # Create version radio buttons
+    create_version_buttons(window, version_var)
+
+    # Create the notebook widget
+    tab_control = ttk.Notebook(window)
+
+    # Create file menu
+    create_file_menu(window, tab_control, version_var)
+
+    # Create tabs for mp4/mp5/mp6
+    for _ in range(3):
+        frame = ttk.Frame(tab_control)
+        frames.append(frame)
+        tab_control.add(frame, text=f"MP{4 + _}")
+
+    tab_control.bind("<<NotebookTabChanged>>", lambda event: tab_selected(event, tab_control))
+    tab_control.pack(expand=True, fill="both")
+
+    # Create a button frame to hold the buttons
+    gen_code_button = tk.Frame(window)
+    gen_code_button.pack(side=tk.TOP, fill=tk.X)
+
+    # Create 'Generate Gecko Code' button and add to generate_button
+    generate_button = tk.Button(gen_code_button, text="Generate Gecko Code", command=lambda: on_generate_code(tab_control, version_var))
+    generate_button.pack(side=tk.LEFT)
+
+    window.mainloop()
+
+if __name__ == "__main__":
+    run_gui()
