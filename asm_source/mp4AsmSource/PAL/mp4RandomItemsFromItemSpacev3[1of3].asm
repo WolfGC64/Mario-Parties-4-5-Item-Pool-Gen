@@ -102,7 +102,7 @@ loop_increment:
 exit_select:
     mulli r4, r4, 4 #i * sizeof int
     addi r4, r4, 2
-    lhzx r4, r7, r4 #get new item id
+    lbzx r4, r7, r4 #get new item id
 exit:
 lis r5, 0x817F
 ori r5, r5, 0xFFF0

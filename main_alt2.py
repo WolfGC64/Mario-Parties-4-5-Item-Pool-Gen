@@ -159,6 +159,8 @@ def create_version_buttons(window, version_var):
 
 
 def on_generate_code(tab_control, version_var):
+    verList = ["JP", "US", "PAL"]
+    gameList = ["MP4", "MP5", "MP6"]
     no_weight = 0
     checked_weights = 0
     total_weights = 0
@@ -167,7 +169,6 @@ def on_generate_code(tab_control, version_var):
     os.system('cls')  # Clear console for Windows
     # Get the currently selected tab index
     current_tab = tab_control.index("current")
-    #print("Generate Code:")
     button_text_keys = list(button_texts_list[current_tab].keys())
     button_text_items = list(button_texts_list[current_tab].items())
     total_weight = 0
@@ -175,29 +176,32 @@ def on_generate_code(tab_control, version_var):
     data_for_price_gecko_code = ""
     gecko_code_game_header = gecko_code_headers[current_tab][version_var.get()]
     gecko_code_game_footer = gecko_code_footers[current_tab][version_var.get()]
-    price_base_addresses = price_base_addresses[current_tab][version_var.get()]
-    #print(f"Gecko code game header:\n{gecko_code_game_header}")
+    price_base_address = price_base_addresses[current_tab][version_var.get()]
     item_names = list(item_names_and_ids_list[current_tab].keys())
     ids_items = list(item_names_and_ids_list[current_tab].items())
+    price_gecko_code_string = ""
     for i in range(len(button_text_items)):
         cur_item_weight = int(weight_vars[i].get())
         cur_item_price = int(price_vars[i].get())
         data_for_weight_gecko_code += hex(cur_item_weight)[2:].upper().zfill(4)
         data_for_weight_gecko_code += ids_items[i][1].upper().zfill(2)
         data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
+        if current_tab == 0: #is mp4 (mp5 will also work this way)
+            price_gecko_code_string += hex(int(price_base_address, 16) + int(ids_items[i][1], 16))[2:].upper().zfill(8)
+            price_gecko_code_string += hex(cur_item_price)[2:].upper().zfill(8)
         if check_vars[i].get() == 1:
             total_weight += cur_item_weight
 
-            #data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
-            #data_for_price_gecko_code += format(cur_item_price, hex(cur_item_price)[2:].upper().zfill(8))
+    print(f"Generating code for {gameList[current_tab]} {verList[version_var.get()]}")
+    for i in range(len(button_text_items)):
+        cur_item_weight = int(weight_vars[i].get())
+        item_percentage = (cur_item_weight / total_weight) * 100
 
-    #print(f"Total Weight: {total_weight}")
-    #print(f"Weight gecko code hex:{data_for_weight_gecko_code}")
-    #print(f"Price gecko code hex:{data_for_price_gecko_code}")
-
+        if item_percentage != 0:
+            print(f'  {button_text_keys[i]}: {item_percentage:.2f}%')
 
     formatted_hex_string = ""
-    data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000"
+    data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000" #append 0 to pad out string for gecko code
     # Insert spaces and new lines
     for i in range(0, len(data_for_weight_gecko_code), 8):
         chunk = data_for_weight_gecko_code[i:i+8]
@@ -206,14 +210,20 @@ def on_generate_code(tab_control, version_var):
             formatted_hex_string += "\n"
 
     formatted_hex_string = formatted_hex_string.rstrip('\n')
-    #print(f"formatted string length: {len(formatted_hex_string)}")
+    formatted_price_hex_string = ""
 
-    print(f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}")
-    #print(f"Formatted String:\n{formatted_hex_string}")
+    if price_gecko_code_string != "":
+        for i in range(0, len(price_gecko_code_string), 8):
+            chunk = price_gecko_code_string[i:i+8]
+            formatted_price_hex_string += chunk + " "
+            if (i+8) % 16 == 0:
+                formatted_price_hex_string += "\n"
+
+    formatted_price_hex_string = formatted_price_hex_string.rstrip('\n')
+
+    print(f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}{formatted_price_hex_string}")
 
     
-
-
 def load_csv(tab_control, version_var):
     verList = ["JP", "US", "PAL"]
     gameList = ["MP4", "MP5", "MP6"]

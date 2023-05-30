@@ -20,7 +20,7 @@ gecko_code_footer_mp6_pal = f"""
 38A50004 4BFFFFDC
 1C840004 38840002
 7C6720AE 90680000
-38840001 7CA720AE
+38840001 7CA720EE
 90A80004 3CA0801E
 60A5A644 7CA903A6
 4E800421 4E800020
@@ -56,7 +56,7 @@ gecko_code_footer_mp5_pal = f"""
 40A00008 48000010
 38840001 38A50004
 4BFFFFDC 1C840004
-38840002 7C67222E
+38840002 7C6720AE
 83E10000 80010014
 7C0803A6 38210010
 4E800020 00000000
@@ -77,7 +77,7 @@ gecko_code_footer_mp5_us = f"""
 40A00008 48000010
 38840001 38A50004
 4BFFFFDC 1C840004
-38840002 7C67222E
+38840002 7C6720AE
 83E10000 80010014
 7C0803A6 38210010
 4E800020 00000000
@@ -108,7 +108,7 @@ gecko_code_footer_mp4_us = f"""
 40A00008 48000010
 38840001 38A50004
 4BFFFFDC 1C840004
-38840002 7C87222E
+38840002 7C8720AE
 3CA0817F 60A5FFF0
 90850000 2C040008
 41800008 38840001
@@ -198,7 +198,7 @@ gecko_code_footer_mp4_pal = f"""
 40A00008 48000010
 38840001 38A50004
 4BFFFFDC 1C840004
-38840002 7C87222E
+38840002 7C8720AE
 3CA0817F 60A5FFF0
 90850000 2C040008
 41800008 38840001
@@ -440,16 +440,11 @@ button_texts_mp4 = {
     "Magic Lamp": ("5", "0", "0")
 }
 
-            price_base_addr = 0x001570B4
-        elif version_var.get() == 2: # US
-            gecko_code_header = gecko_code_header_mp4_us
-            gecko_code_footer = gecko_code_footer_mp4_us
-            price_base_addr = 0x00139D2C
 
 #hex addresses, for gecko code 1 byte write
-mp4_price_base_addresses = ["", "001570B4", "00139D2C" ]
-mp5_price_base_addresses = ["", "", "" ]
-mp6_price_base_addresses = ["", "", "" ]
+mp4_price_base_addresses = ["0", "0x001570B4", "0x00139D2C" ]
+mp5_price_base_addresses = ["0", "0", "0" ]
+mp6_price_base_addresses = ["0", "0", "0" ]
 
 price_base_addresses = [mp4_price_base_addresses, mp5_price_base_addresses, mp6_price_base_addresses]
 

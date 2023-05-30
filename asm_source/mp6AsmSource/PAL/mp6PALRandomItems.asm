@@ -168,7 +168,7 @@ exit_select:
     lbzx r3, r7, r4 #get new item id
     stw r3, 0x0000 (r8) #set new id (and return r3)
     addi r4, r4, 1
-    lbzx r5, r7, r4 #get new item price
+    lbzux r5, r7, r4 #get new item price
     stw r5, 0x0004 (r8) #set new price
 
 
