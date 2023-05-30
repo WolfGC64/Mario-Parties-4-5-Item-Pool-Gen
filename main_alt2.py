@@ -121,7 +121,6 @@ def open_help_window():
     help_window = tk.Toplevel()
     help_window.title("Help")
     help_window.geometry("300x200")
-
     help_text = "Mario Party 4/5/6 Item Pool Generator\nWritten by Rain"
     help_label = tk.Label(help_window, text=help_text)
     help_label.pack()
@@ -161,12 +160,19 @@ def create_version_buttons(window, version_var):
 def on_generate_code(tab_control, version_var):
     verList = ["JP", "US", "PAL"]
     gameList = ["MP4", "MP5", "MP6"]
-    no_weight = 0
-    checked_weights = 0
-    total_weights = 0
+
     #clear twice to avoid powershell leaving stuff in the window
     os.system('cls')  # Clear console for Windows
     os.system('cls')  # Clear console for Windows
+
+    version = version_var.get()
+    if version == 0: #is JP
+        print("JP version not currently supported")
+        return
+    no_weight = 0
+    checked_weights = 0
+    total_weights = 0
+
     # Get the currently selected tab index
     current_tab = tab_control.index("current")
     button_text_keys = list(button_texts_list[current_tab].keys())
@@ -174,9 +180,9 @@ def on_generate_code(tab_control, version_var):
     total_weight = 0
     data_for_weight_gecko_code = ""
     data_for_price_gecko_code = ""
-    gecko_code_game_header = gecko_code_headers[current_tab][version_var.get()]
-    gecko_code_game_footer = gecko_code_footers[current_tab][version_var.get()]
-    price_base_address = price_base_addresses[current_tab][version_var.get()]
+    gecko_code_game_header = gecko_code_headers[current_tab][version]
+    gecko_code_game_footer = gecko_code_footers[current_tab][version]
+    price_base_address = price_base_addresses[current_tab][version]
     item_names = list(item_names_and_ids_list[current_tab].keys())
     ids_items = list(item_names_and_ids_list[current_tab].items())
     price_gecko_code_string = ""
@@ -185,14 +191,21 @@ def on_generate_code(tab_control, version_var):
         cur_item_price = int(price_vars[i].get())
         data_for_weight_gecko_code += hex(cur_item_weight)[2:].upper().zfill(4)
         data_for_weight_gecko_code += ids_items[i][1].upper().zfill(2)
-        data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
         if current_tab == 0: #is mp4 (mp5 will also work this way)
             price_gecko_code_string += hex(int(price_base_address, 16) + int(ids_items[i][1], 16))[2:].upper().zfill(8)
             price_gecko_code_string += hex(cur_item_price)[2:].upper().zfill(8)
         if check_vars[i].get() == 1:
             total_weight += cur_item_weight
+            data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
+        else:
+            data_for_weight_gecko_code += "00" #set price to 00 if not checked
 
-    print(f"Generating code for {gameList[current_tab]} {verList[version_var.get()]}")
+    if total_weight <= 0:
+        print("Total weight was 0!")
+        return
+
+    print(f"Generating code for {gameList[current_tab]} {verList[version]}")
+
     for i in range(len(button_text_items)):
         cur_item_weight = int(weight_vars[i].get())
         item_percentage = (cur_item_weight / total_weight) * 100
@@ -201,7 +214,12 @@ def on_generate_code(tab_control, version_var):
             print(f'  {button_text_keys[i]}: {item_percentage:.2f}%')
 
     formatted_hex_string = ""
-    data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000" #append 0 to pad out string for gecko code
+
+    if len(button_text_keys) % 2 == 1:
+        #we do this because we need to fill the space in the gecko code which occurrs when an odd number of items are present
+        data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000" 
+
+
     # Insert spaces and new lines
     for i in range(0, len(data_for_weight_gecko_code), 8):
         chunk = data_for_weight_gecko_code[i:i+8]
@@ -260,7 +278,6 @@ def load_csv(tab_control, version_var):
                 on_checkbutton_change(index)  # Update checkbutton widget
 
 
-
 def save_csv(tab_control, version_var):
     current_tab = tab_control.index("current")
     print(f"tab index {current_tab}")
@@ -284,13 +301,6 @@ def save_csv(tab_control, version_var):
             price_value = price_vars[i].get()
             checked = check_vars[i].get()
             game = f"MP{4 + current_tab}"
-
-            # print(f"Key: {button_text_keys[i]}")
-            # print(f"Weight: {weight_value}")
-            # print(f"Price: {price_value}")
-            # print(f"Checked: {checked}")
-            # print(f"Game: {game}")
-            # print(f"Version: {version}\n")
 
             writer.writerow({'name': button_text_keys[i], 'price': price_value, 'weight': weight_value, 'on/off': checked, 'game': game, 'version': version})
 
