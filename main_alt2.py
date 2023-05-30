@@ -4,11 +4,13 @@ from tkinter import PhotoImage
 from gecko_code_dictionaries import *
 from tkinter import filedialog
 import csv
+import os
 
 frames = []
 price_vars = []  # List to store price values
 weight_vars = []  # List to store weight values
 check_vars = []  # List to store check values
+checkbuttons = []  # list to hold checkbutton widgets
 
 def on_checkbutton_change(index):
     if check_vars[index].get():  # if checked
@@ -25,7 +27,6 @@ def create_grid(frame, rows, columns, text_keys, text_items, current_tab):
     price_vars = []  # List to store price values
     weight_vars = []  # List to store weight values
     check_vars = []  # List to store check values
-    check_vars = []
     checkbuttons = []  # list to hold checkbutton widgets
     index = 0
 
@@ -35,7 +36,8 @@ def create_grid(frame, rows, columns, text_keys, text_items, current_tab):
             for i in range(items_per_column): #show items in rows of 3s
                 if index >= len(text_keys):
                     return
-
+                limit_coin_size_callback = frame.register(limit_coin_size)
+                limit_weight_size_callback = frame.register(limit_weight_size)
                 cur_row = rows * (r * columns + c)
                 button_text, (price, weight, checked) = text_items[index]
 
@@ -54,12 +56,12 @@ def create_grid(frame, rows, columns, text_keys, text_items, current_tab):
 
                 # Create Entry widgets for price box
                 price_var = tk.StringVar(value=price_str_test)  # StringVar to store price value
-                price_entry = tk.Entry(frame, width=3, textvariable=price_var)
+                price_entry = tk.Entry(frame, width=3, textvariable=price_var, validate='key', validatecommand=(limit_coin_size_callback, '%P'))
                 price_entry.grid(row=cur_row+1, column=i * items_per_column)
                 price_vars.append(price_var)  # Store price_var in the list
 
                 weight_var = tk.StringVar(value=weight_str_test)  # StringVar to store weight value
-                weight_entry = tk.Entry(frame, width=3, textvariable=weight_var)
+                weight_entry = tk.Entry(frame, width=3, textvariable=weight_var, validate='key', validatecommand=(limit_weight_size_callback, '%P'))
                 weight_entry.grid(row=cur_row+1, column=i * items_per_column + 1)
                 weight_vars.append(weight_var)  # Store weight_var in the list
 
@@ -94,12 +96,22 @@ def tab_selected(event, tab_control):
     create_grid(frame, elements_per_row, max_num_of_columns, button_text_keys, button_text_items, current_tab)
 
 
-def limit_size(P):
+def limit_weight_size(P):
     if len(P) > 3: 
         return False
     if len(P) < 1: # Allow empty entries
         return True
     if P.isdigit() and 0 <= int(P) <= 999: # Check for a valid integer within the range
+        return True
+    else:
+        return False
+
+def limit_coin_size(P):
+    if len(P) > 3: 
+        return False
+    if len(P) < 1: # Allow empty entries
+        return True
+    if P.isdigit() and 0 <= int(P) <= 255: # Check for a valid integer within the range
         return True
     else:
         return False
@@ -155,6 +167,50 @@ def on_generate_code(tab_control, version_var):
     os.system('cls')  # Clear console for Windows
     # Get the currently selected tab index
     current_tab = tab_control.index("current")
+    #print("Generate Code:")
+    button_text_keys = list(button_texts_list[current_tab].keys())
+    button_text_items = list(button_texts_list[current_tab].items())
+    total_weight = 0
+    data_for_weight_gecko_code = ""
+    data_for_price_gecko_code = ""
+    gecko_code_game_header = gecko_code_headers[current_tab][version_var.get()]
+    gecko_code_game_footer = gecko_code_footers[current_tab][version_var.get()]
+    price_base_addresses = price_base_addresses[current_tab][version_var.get()]
+    #print(f"Gecko code game header:\n{gecko_code_game_header}")
+    item_names = list(item_names_and_ids_list[current_tab].keys())
+    ids_items = list(item_names_and_ids_list[current_tab].items())
+    for i in range(len(button_text_items)):
+        cur_item_weight = int(weight_vars[i].get())
+        cur_item_price = int(price_vars[i].get())
+        data_for_weight_gecko_code += hex(cur_item_weight)[2:].upper().zfill(4)
+        data_for_weight_gecko_code += ids_items[i][1].upper().zfill(2)
+        data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
+        if check_vars[i].get() == 1:
+            total_weight += cur_item_weight
+
+            #data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
+            #data_for_price_gecko_code += format(cur_item_price, hex(cur_item_price)[2:].upper().zfill(8))
+
+    #print(f"Total Weight: {total_weight}")
+    #print(f"Weight gecko code hex:{data_for_weight_gecko_code}")
+    #print(f"Price gecko code hex:{data_for_price_gecko_code}")
+
+
+    formatted_hex_string = ""
+    data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000"
+    # Insert spaces and new lines
+    for i in range(0, len(data_for_weight_gecko_code), 8):
+        chunk = data_for_weight_gecko_code[i:i+8]
+        formatted_hex_string += chunk + " "
+        if (i+8) % 16 == 0:
+            formatted_hex_string += "\n"
+
+    formatted_hex_string = formatted_hex_string.rstrip('\n')
+    #print(f"formatted string length: {len(formatted_hex_string)}")
+
+    print(f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}")
+    #print(f"Formatted String:\n{formatted_hex_string}")
+
     
 
 
@@ -190,7 +246,7 @@ def load_csv(tab_control, version_var):
             for index, row in enumerate(data):
                 price_vars[index].set(row['price'])
                 weight_vars[index].set(row['weight'])
-                check_vars[index].set(row['on/off'] == 'True')  # Convert string 'True'/'False' to boolean
+                check_vars[index].set(row['on/off'] == 'True')
                 on_checkbutton_change(index)  # Update checkbutton widget
 
 

@@ -440,4 +440,30 @@ button_texts_mp4 = {
     "Magic Lamp": ("5", "0", "0")
 }
 
+            price_base_addr = 0x001570B4
+        elif version_var.get() == 2: # US
+            gecko_code_header = gecko_code_header_mp4_us
+            gecko_code_footer = gecko_code_footer_mp4_us
+            price_base_addr = 0x00139D2C
+
+#hex addresses, for gecko code 1 byte write
+mp4_price_base_addresses = ["", "001570B4", "00139D2C" ]
+mp5_price_base_addresses = ["", "", "" ]
+mp6_price_base_addresses = ["", "", "" ]
+
+price_base_addresses = [mp4_price_base_addresses, mp5_price_base_addresses, mp6_price_base_addresses]
+
+gecko_code_mp4_headers = ["", gecko_code_header_mp4_us, gecko_code_header_mp4_pal]
+gecko_code_mp4_footers = ["", gecko_code_footer_mp4_us, gecko_code_footer_mp4_pal]
+
+gecko_code_mp5_headers = ["", gecko_code_header_mp5_us, gecko_code_header_mp5_pal]
+gecko_code_mp5_footers = ["", gecko_code_footer_mp5_us, gecko_code_footer_mp5_pal]
+
+gecko_code_mp6_headers = ["", "", gecko_code_header_mp6_pal]
+gecko_code_mp6_footers = ["", "", gecko_code_footer_mp6_pal]
+
+gecko_code_headers = [gecko_code_mp4_headers, gecko_code_mp5_headers, gecko_code_mp6_headers]
+gecko_code_footers = [gecko_code_mp4_footers, gecko_code_mp5_footers, gecko_code_mp6_footers]
+
+item_names_and_ids_list = [item_and_id_mp4, item_and_id_mp5, item_and_id_mp6]
 button_texts_list = [button_texts_mp4, button_texts_mp5, button_texts_mp6]
