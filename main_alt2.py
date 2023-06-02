@@ -126,14 +126,28 @@ def open_help_window():
     help_label.pack()
 
 
-def clear_grid(window):
-    print("clear")
+def clear_grid(tab_control, version_var):
+    elements_per_row = 3
+    max_num_of_columns = 10
+
+    # Get the currently selected tab index
+    current_tab = tab_control.index("current")
+    #print(f"Current tab index{current_tab}")
+    
+    # Clear the frame before creating a new grid
+    frame = frames[current_tab]
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    button_text_keys = list(button_texts_list[current_tab].keys())
+    button_text_items = list(button_texts_list[current_tab].items())
+    create_grid(frame, elements_per_row, max_num_of_columns, button_text_keys, button_text_items, current_tab)
 
 
 def create_file_menu(window, tab_control, version_var):
     menubar = tk.Menu(window)
     filemenu = tk.Menu(menubar, tearoff=0)
-    filemenu.add_command(label="New", command=lambda: clear_grid(menubar))
+    filemenu.add_command(label="New", command=lambda: clear_grid(tab_control, version_var))
     filemenu.add_command(label="Open", command=lambda: load_csv(tab_control, version_var))
     filemenu.add_command(label="Save", command=lambda: save_csv(tab_control, version_var))
     filemenu.add_separator()
