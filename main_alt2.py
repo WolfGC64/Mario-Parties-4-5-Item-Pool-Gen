@@ -200,6 +200,8 @@ def on_generate_code(tab_control, version_var):
     item_names = list(item_names_and_ids_list[current_tab].keys())
     ids_items = list(item_names_and_ids_list[current_tab].items())
     price_gecko_code_string = ""
+    lowest_price = 999 #max is 255 in tkinter program
+
     for i in range(len(button_text_items)):
         cur_item_weight = int(weight_vars[i].get())
         cur_item_price = int(price_vars[i].get())
@@ -211,6 +213,9 @@ def on_generate_code(tab_control, version_var):
         if check_vars[i].get() == 1:
             total_weight += cur_item_weight
             data_for_weight_gecko_code += hex(cur_item_price)[2:].upper().zfill(2)
+            # Update lowest_price if the current item price is lower
+            if cur_item_price < lowest_price:
+                lowest_price = cur_item_price
         else:
             data_for_weight_gecko_code += "00" #set price to 00 if not checked
 
@@ -219,6 +224,9 @@ def on_generate_code(tab_control, version_var):
         return
 
     print(f"Generating code for {gameList[current_tab]} {verList[version]}")
+    print(f"The lowest item price is: {lowest_price}")
+
+    
 
     for i in range(len(button_text_items)):
         cur_item_weight = int(weight_vars[i].get())
@@ -254,6 +262,12 @@ def on_generate_code(tab_control, version_var):
     formatted_price_hex_string = formatted_price_hex_string.rstrip('\n')
 
     print(f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}{formatted_price_hex_string}")
+    if (lowest_price) != -1:
+        if (current_tab == 2): #is mp6 
+            if (version): #is mp6 pal
+                lowest_price = lowest_price -1 #the instruction `cmpwi r3, 4` has a `ble-` comparison after. Therefore we subtract 1 to correclty set the `cmpwi` instruction
+                formatted_lowest_price = "{:04X}".format(lowest_price)
+                print(f"""C21EA41C 00000001\n2C03{formatted_lowest_price} 00000000""")
 
     
 def load_csv(tab_control, version_var):
