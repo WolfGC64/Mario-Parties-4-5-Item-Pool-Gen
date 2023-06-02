@@ -307,7 +307,7 @@ def save_csv(tab_control, version_var):
 
 def run_gui():
     window = tk.Tk()
-    window.title("Mario Party 4/5 Item Pool Generator")
+    window.title("Mario Party 4/5/6 Item Pool Generator")
     window.iconbitmap("ico/icon.ico")
     window.geometry("600x650")  # Width x Height in pixels
 

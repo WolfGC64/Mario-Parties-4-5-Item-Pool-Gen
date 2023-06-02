@@ -126,26 +126,37 @@ afterPercentages:
 mflr r7
 addi r7, r7, 4 #add 4 to skip over nop
 add r8, r4, r0 #move pointer to item/coin table to r8
+
 # Calculate the range of random values based on percentages
 li r3, 0
-li r4, 0
+li r10, 0
 loop_calc:
     cmpwi r3, 88 # Exit at 22 items * 4 (4 being size of .4byte)
     beq- exit_calc
     lhzx r5, r7, r3 # Load the percentage for the current item using r3 as index
-    add r4, r4, r5 # Add the percentage to the range of random values
+    add r10, r10, r5 # Add the percentage to the range of random values
     addi r3, r3, 4 # Increment index by 4 (size of an integer)
     b loop_calc
 exit_calc:
 
+rerollItem:
 #odds total in r4
 lis r5, 0x8014
 ori r5, r5, 0xCD78
 mtctr r5
-mr r3, r4 #odds total as func arg
+mr r3, r10 #odds total as func arg
 bctrl
 
 #rand int in r3
+
+#get cur player coins
+lwz r5, -0x6540 (r13) #cur player indedx
+#get player coin count
+mulli r5, r5, 264
+lis r6, 0x8028
+addi r6, r6, 11888
+add r6, r6, r5
+lha r0, 0x001C (r6) #cur player coins
 
 # Select the item based on the random integer
 li r4, 0
@@ -157,18 +168,24 @@ loop_select:
     sub r3, r3, r6 # Subtract the percentage from the random integer
     cmpwi r3, 0 # Compare the updated random integer with 0
     bge+ loop_increment # If the updated random integer is greater than or equal to 0, continue to the next item
+    #check if player can afford item
+    mulli r9, r4, 4 #i * sizeof int
+    addi r9, r9, 3
+    lbzx r9, r7, r9 #get new item price
+    cmpw r0, r9
+    blt+ rerollItem
     b exit_select
 loop_increment:
     addi r4, r4, 1 #iterator id increment
     addi r5, r5, 4 # Increment index by 4
     b loop_select
 exit_select:
-    mulli r4, r4, 4 #i * sizeof int
-    addi r4, r4, 2
-    lbzx r3, r7, r4 #get new item id
+    mulli r9, r4, 4 #i * sizeof int
+    add r9, r9, r7 #r9 now points to item id
+    lbz r3, 0x0002 (r9) #get new item id
+    lbz r5, 0x0003 (r9) #get new item price
+
     stw r3, 0x0000 (r8) #set new id (and return r3)
-    addi r4, r4, 1
-    lbzux r5, r7, r4 #get new item price
     stw r5, 0x0004 (r8) #set new price
 
 
