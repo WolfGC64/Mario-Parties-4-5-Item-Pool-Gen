@@ -169,7 +169,7 @@ exit_select:
     mulli r4, r4, 4 #i * sizeof int
     addi r4, r4, 2
     lbzx r3, r7, r4 #get new item id
-
+    
 exit:
   lwz r31, 0(r1)
   lwz r0, 20(r1)

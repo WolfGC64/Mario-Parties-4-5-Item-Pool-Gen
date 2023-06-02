@@ -207,8 +207,13 @@ def on_generate_code(tab_control, version_var):
         cur_item_price = int(price_vars[i].get())
         data_for_weight_gecko_code += hex(cur_item_weight)[2:].upper().zfill(4)
         data_for_weight_gecko_code += ids_items[i][1].upper().zfill(2)
-        if current_tab == 0: #is mp4 (mp5 will also work this way)
+        if current_tab == 0: #is mp4
             price_gecko_code_string += hex(int(price_base_address, 16) + int(ids_items[i][1], 16))[2:].upper().zfill(8)
+            price_gecko_code_string += hex(cur_item_price)[2:].upper().zfill(8)
+        elif current_tab == 1: #is mp5
+            #multiply by 28 because it's the size of the capsule table struct
+            #add 0x14 so base address points to struct member price
+            price_gecko_code_string += hex(int(int(price_base_address, 16) + 0x14) + int(int(ids_items[i][1], 16) * 28))[2:].upper().zfill(8)
             price_gecko_code_string += hex(cur_item_price)[2:].upper().zfill(8)
         if check_vars[i].get() == 1:
             total_weight += cur_item_weight
@@ -259,16 +264,18 @@ def on_generate_code(tab_control, version_var):
             if (i+8) % 16 == 0:
                 formatted_price_hex_string += "\n"
 
-    formatted_price_hex_string = formatted_price_hex_string.rstrip('\n')
-
-    print(f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}{formatted_price_hex_string}")
+    gecko_code_string = f"{gecko_code_game_header}{formatted_hex_string}{gecko_code_game_footer}{formatted_price_hex_string}"
     if (lowest_price) != -1:
         if (current_tab == 2): #is mp6 
-            if (version): #is mp6 pal
-                lowest_price = lowest_price -1 #the instruction `cmpwi r3, 4` has a `ble-` comparison after. Therefore we subtract 1 to correclty set the `cmpwi` instruction
-                formatted_lowest_price = "{:04X}".format(lowest_price)
-                print(f"""C21EA41C 00000001\n2C03{formatted_lowest_price} 00000000""")
+            lowest_price = lowest_price -1 #the instruction `cmpwi r3, 4` has a `ble-` comparison after. Therefore we subtract 1 to correclty set the `cmpwi` instruction
+            formatted_lowest_price = "{:04X}".format(lowest_price)
+            gecko_code_string += replace_characters(can_enter_shop_mp6_gecko_codes[current_tab], 23, formatted_lowest_price)
 
+    print(gecko_code_string)
+
+
+def replace_characters(string, index, replacement):
+    return string[:index] + replacement + string[index + 4:]
     
 def load_csv(tab_control, version_var):
     verList = ["JP", "US", "PAL"]

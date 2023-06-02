@@ -1,3 +1,54 @@
+gecko_code_mp6_jp_can_enter_shop_price_check = f"""
+C21EA41C 00000001
+2C030000 00000000
+"""
+
+gecko_code_mp6_us_can_enter_shop_price_check = f"""
+C21EA8C0 00000001
+2C030000 00000000
+"""
+
+gecko_code_mp6_pal_can_enter_shop_price_check = f"""
+C21EA41C 00000001
+2C030000 00000000
+"""
+
+can_enter_shop_mp6_gecko_codes = [gecko_code_mp6_jp_can_enter_shop_price_check, gecko_code_mp6_us_can_enter_shop_price_check, gecko_code_mp6_pal_can_enter_shop_price_check]
+
+gecko_code_header_mp6_us = f"""
+C21EAAE4 00000027
+48000069 60000000
+"""
+
+gecko_code_footer_mp6_us = f"""
+7CE802A6 38E70004
+7D040214 38600000
+39400000 2C030058
+41820014 7CA71A2E
+7D4A2A14 38630004
+4BFFFFEC 3CA08014
+60A5D348 7CA903A6
+7D435378 4E800421
+80AD9AC0 1CA50108
+3CC08026 38C65750
+7CC62A14 A806001C
+38800000 38A00000
+2C050058 41820038
+7CC72A2E 7C661850
+2C030000 40A0001C
+1D240004 39290003
+7D2748AE 7C004800
+4180FFA4 48000010
+38840001 38A50004
+4BFFFFC8 1D240004
+7D293A14 88690002
+88A90003 90680000
+90A80004 3CA0801E
+60A5A644 7CA903A6
+4E800421 4E800020
+60000000 00000000
+"""
+
 gecko_code_header_mp6_pal = f"""
 C21EA640 00000027
 48000069 60000000
@@ -447,8 +498,15 @@ button_texts_mp4 = {
 
 
 #hex addresses, for gecko code 1 byte write
+#jp, us, pal versions in order
+#00 codetype to write 1 byte
+#so actual address for MP4 US would be 0x801570B4
 mp4_price_base_addresses = ["0", "0x001570B4", "0x00139D2C" ]
-mp5_price_base_addresses = ["0", "0", "0" ]
+
+#04 codetype to write 4 bytes
+mp5_price_base_addresses = ["0", "0x041CA21C", "0x041E8D94" ]
+
+#mp6 doesn't use this
 mp6_price_base_addresses = ["0", "0", "0" ]
 
 price_base_addresses = [mp4_price_base_addresses, mp5_price_base_addresses, mp6_price_base_addresses]
@@ -459,8 +517,8 @@ gecko_code_mp4_footers = ["", gecko_code_footer_mp4_us, gecko_code_footer_mp4_pa
 gecko_code_mp5_headers = ["", gecko_code_header_mp5_us, gecko_code_header_mp5_pal]
 gecko_code_mp5_footers = ["", gecko_code_footer_mp5_us, gecko_code_footer_mp5_pal]
 
-gecko_code_mp6_headers = ["", "", gecko_code_header_mp6_pal]
-gecko_code_mp6_footers = ["", "", gecko_code_footer_mp6_pal]
+gecko_code_mp6_headers = ["", gecko_code_header_mp6_us, gecko_code_header_mp6_pal]
+gecko_code_mp6_footers = ["", gecko_code_footer_mp6_us, gecko_code_footer_mp6_pal]
 
 gecko_code_headers = [gecko_code_mp4_headers, gecko_code_mp5_headers, gecko_code_mp6_headers]
 gecko_code_footers = [gecko_code_mp4_footers, gecko_code_mp5_footers, gecko_code_mp6_footers]
