@@ -126,7 +126,7 @@ def open_help_window():
     help_label.pack()
 
 
-def clear_grid(tab_control, version_var):
+def clear_grid(tab_control):
     elements_per_row = 3
     max_num_of_columns = 10
 
@@ -147,7 +147,7 @@ def clear_grid(tab_control, version_var):
 def create_file_menu(window, tab_control, version_var):
     menubar = tk.Menu(window)
     filemenu = tk.Menu(menubar, tearoff=0)
-    filemenu.add_command(label="New", command=lambda: clear_grid(tab_control, version_var))
+    filemenu.add_command(label="New", command=lambda: clear_grid(tab_control))
     filemenu.add_command(label="Open", command=lambda: load_csv(tab_control, version_var))
     filemenu.add_command(label="Save", command=lambda: save_csv(tab_control, version_var))
     filemenu.add_separator()
@@ -243,7 +243,7 @@ def on_generate_code(tab_control, version_var):
     formatted_hex_string = ""
 
     if len(button_text_keys) % 2 == 1:
-        #we do this because we need to fill the space in the gecko code which occurrs when an odd number of items are present
+        #needed to fill the space in the gecko code which occurrs when an odd number of items are present
         data_for_weight_gecko_code = data_for_weight_gecko_code + "00000000" 
 
 
@@ -297,12 +297,12 @@ def load_csv(tab_control, version_var):
             tab_control.select(frames[i])
             current_tab = tab_control.index("current")
             tab_control.update()
-            clear_grid(frames[i])
+            clear_grid(tab_control)
 
             text_keys = [row['name'] for row in data]
             text_items = [(row['name'], (row['price'], row['weight'], row['on/off'],)) for row in data]
             #print(text_keys)
-            print(f"Text Items:\n {text_items}")
+            #print(f"Text Items:\n {text_items}")
 
             create_grid(frames[i], 3, 10, text_keys, text_items, current_tab)
             
@@ -315,7 +315,7 @@ def load_csv(tab_control, version_var):
 
 def save_csv(tab_control, version_var):
     current_tab = tab_control.index("current")
-    print(f"tab index {current_tab}")
+    #print(f"tab index {current_tab}")
 
     file_path = filedialog.asksaveasfilename(defaultextension='.csv', filetypes=[('CSV Files', '*.csv')])
 
@@ -349,7 +349,7 @@ def run_gui():
     # Create version_var for save/load csv
     version_var = tk.IntVar(value=1)  # Set default value to 1 (US)
 
-    # Create version radio buttons
+    # # Create version radio buttons
     create_version_buttons(window, version_var)
 
     # Create the notebook widget
