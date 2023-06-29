@@ -501,7 +501,7 @@ button_texts_mp4 = {
 #jp, us, pal versions in order
 #00 codetype to write 1 byte
 #so actual address for MP4 US would be 0x801570B4
-mp4_price_base_addresses = ["0", "0x001570B4", "0x00139D2C" ]
+mp4_price_base_addresses = ["0", "0x00139D2C", "0x001570B4" ]
 
 #04 codetype to write 4 bytes
 mp5_price_base_addresses = ["0", "0x041CA21C", "0x041E8D94" ]
